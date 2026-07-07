@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function StatCard({ title, value, icon}) {
     return (
@@ -5,7 +6,7 @@ export default function StatCard({ title, value, icon}) {
             <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl flex-shrink-0"
             style={{backgroundColor: '#15435B'}}
             >
-                {icon}
+                <FontAwesomeIcon icon={icon}/>
 
             </div>
 

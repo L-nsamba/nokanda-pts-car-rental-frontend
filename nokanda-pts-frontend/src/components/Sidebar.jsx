@@ -17,7 +17,7 @@ const navItems = [
     {label: 'Drivers', path: '/drivers', icon: faIdCard},
     {label: 'Vehicles', path: '/vehicles', icon: faCar},
     {label: 'Pricing', path: '/pricing', icon: faMoneyBill},
-    {label: 'Notifications', path: '/dashboard', icon: faBell},
+    {label: 'Notifications', path: '/notifications', icon: faBell},
 
 ]
 
@@ -54,7 +54,7 @@ export default function Sidebar()  {
                     }`
                     }
                 >
-                    <span>{item.icon}</span>
+                    <span><FontAwesomeIcon icon={item.icon} /></span>
                     {item.label}
                 </NavLink>
                 ))}
