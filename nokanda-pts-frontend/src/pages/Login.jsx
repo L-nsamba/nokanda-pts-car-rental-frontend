@@ -82,7 +82,7 @@ export default function Login() {
                     <button
                         type='submit'
                         disabled={loading}
-                        className='w-full py-2 rounded text-sm font-semibold tracking-wideset mt-1 transition-opacity hover:opacity-90 disabled:opacity-60'
+                        className='w-full py-2 rounded text-sm font-semibold tracking-wideset mt-3 transition-opacity hover:opacity-90 disabled:opacity-60'
                         style={{backgroundColor: '#15435B', color: 'white'}}
                         >
                             {loading ? 'LOGGING IN...' : 'LOGIN'}
@@ -90,7 +90,7 @@ export default function Login() {
 
                     {/**Forgot password */}
                     <p
-                        className='text-center text-xs mt-1 cursor-pointer hover:underline'
+                        className='text-center text-xs mt-2 cursor-pointer hover:underline'
                         style={{color: '#15435B'}}
                     >
                         Forgot password?

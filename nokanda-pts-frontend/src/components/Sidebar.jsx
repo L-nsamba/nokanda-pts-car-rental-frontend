@@ -9,6 +9,7 @@ import {
   faCar,
   faMoneyBill,
   faBell,
+  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
@@ -37,7 +38,7 @@ export default function Sidebar()  {
         
             {/**Logo */}
             <div className="mb-8 px-2">
-                <img src={ptsLogo} alt="PTS" className="w-20 brightness-0 invert"></img>
+                <img src={ptsLogo} alt="PTS" className="w-40 brightness-0 invert"></img>
             </div>
 
             {/**Nav Items */}
@@ -65,7 +66,7 @@ export default function Sidebar()  {
                 onClick={handleLogout}
                 className="flex items-center gap-3 px-3 rounded text-sm text-white hover:bg-white/10 transition-colors"
             >
-                <span>⎋</span>
+                <span><FontAwesomeIcon icon={faRightFromBracket} /></span>
                 Logout
             </button>
 

@@ -68,10 +68,10 @@ export default function Dashboard() {
         labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
         datasets: [{
             data: stats ? [
-                stats.bookings_by_status.pending,
-                stats.bookings_by_status.confirmed,
-                stats.bookings_by_status.completed,
-                stats.bookings_by_status.cancelled,
+                stats.booking_by_status.PENDING,
+                stats.booking_by_status.CONFIRMED,
+                stats.booking_by_status.COMPLETED,
+                stats.booking_by_status.CANCELLED,
             ] : [],
             backgroundColor: ['#F59E0B', '#15435B', '#10B981', '#EF4444'],
             borderWidth: 0,
