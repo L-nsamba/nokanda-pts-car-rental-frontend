@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import Sidebar from "../components/Sidebar"
-import { getBookings, getDrivers } from "../services/api"
+import { getBookings, getAvailableDrivers } from "../services/api"
 import API from "../services/api"
 
 const STATUS_COLORS = {
@@ -20,31 +20,37 @@ export default function Bookings() {
     const [selectedDriver, setSelectedDriver] = useState('')
     const [updating, setUpdating] = useState(false)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [bookingRes, driverRes] =  await Promise.all([
-                    getBookings(),
-                    getDrivers
-                ])
-                setBookings(bookingRes.data)
-                setDrivers(driverRes.data)
-            } catch (err) {
-                console.error('Failed to fetch bookings', err)
-            } finally {
-                setLoading(false)
-            }
+    const fetchData = async () => {
+        try {
+            const [bookingRes, driverRes] =  await Promise.all([
+                getBookings(),
+                getAvailableDrivers()
+            ])
+            setBookings(bookingRes.data)
+            setDrivers(driverRes.data)
+        } catch (err) {
+            console.error('Failed to fetch bookings', err)
+        } finally {
+            setLoading(false)
         }
+    }
+
+    useEffect(() => {
         fetchData()
     }, [])
 
     //Booking status updates//
     const handleStatusUpdate =  async (bookingId, newStatus) => {
         try {
-            await APT.put(`/bookings/${bookingId}`, {status: newStatus})
+            await API.patch(`/bookings/${bookingId}/status-update`, {status: newStatus})
             setBookings(prev =>
                 prev.map(b => b.booking_id === bookingId ? { ...b, status: newStatus} : b)
             )
+            // Completing/cancelling frees the driver, refresh the available list
+            if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
+                const driverRes = await getAvailableDrivers()
+                setDrivers(driverRes.data)
+            }
         } catch (err) {
             console.error('Failed to update status', err)
         }
@@ -55,13 +61,16 @@ export default function Bookings() {
         if (!selectedDriver) return
         setUpdating(true)
         try {
-            await API.put(`/bookings/${bookingId}`, {driver_id: selectedDriver})
-            const driver = drivers.find(d => d.driver_id === selectedDriver)
+            await API.patch(`/bookings/${bookingId}/assign-driver`, {driver_id: selectedDriver})
+            const driver = drivers.find(d => d.user_id === selectedDriver)
             setBookings(prev =>
                 prev.map(b => b.booking_id === bookingId ? { ...b, driver_id: selectedDriver, driver_name: driver?.name || selectedDriver } : b)
             )
             setAssigningId(null)
             setSelectedDriver('')
+            // Refresh available drivers now that this one (and any previous driver) changed status
+            const driverRes = await getAvailableDrivers()
+            setDrivers(driverRes.data)
         } catch (err) {
             console.error('Failed to assign driver', err)
         } finally{
@@ -73,7 +82,7 @@ export default function Bookings() {
     const filteredBookings = bookings.filter(b => {
         const matchesStatus = statusFilter ? b.status === statusFilter : true
         const matchesSearch = search ? b.destination_name?.toLowerCase().includes(search.toLowerCase()) ||
-                                       b.vehicle_name?.toLowerCase().includes(search.toLowerCase()) ||
+                                       b.vehicle_type?.toLowerCase().includes(search.toLowerCase()) ||
                                        b.driver_name?.toLowerCase().includes(search.toLowerCase()) 
                                        : true
                                     return matchesStatus  && matchesSearch
@@ -157,7 +166,7 @@ export default function Bookings() {
                                     className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                                     >
                                         <td className="px-4 py-3">{booking.destination_name}</td>
-                                        <td className="px-4 py-3">{booking.vehicle_name}</td>
+                                        <td className="px-4 py-3">{booking.vehicle_type}</td>
                                         <td className="px-4 py-3">{booking.start_date}</td>
                                         <td className="px-4 py-3">{booking.num_days}</td>
 
@@ -166,6 +175,11 @@ export default function Bookings() {
                                         </td>
 
                                         <td className="px-4 py-3">
+                                            {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
+                                            <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[booking.status]}`}>
+                                                {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                                            </span>
+                                            ) : (
                                             <select
                                             value={booking.status}
                                             onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
@@ -176,6 +190,7 @@ export default function Bookings() {
                                             <option value="COMPLETED">Completed</option>
                                             <option value="CANCELLED">Cancelled</option>
                                             </select>
+                                            )}
                                         </td>
 
                                         <td className="px-4 py-3 text-gray-500">
@@ -185,6 +200,9 @@ export default function Bookings() {
                                         </td>
 
                                         <td className="px-4 py-3">
+                                            {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
+                                            <span className="text-xs text-gray-300">—</span>
+                                            ) : (
                                             <button
                                             onClick={() => setAssigningId(
                                                 assigningId === booking.booking_id ? null : booking.booking_id
@@ -192,13 +210,14 @@ export default function Bookings() {
                                             className="text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
                                             style={{ backgroundColor: '#15435B' }}
                                             >
-                                            {assigningId === booking.booking_id ? 'Cancel' : 'Assign Driver'}
+                                            {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
                                             </button>
+                                            )}
                                         </td>
                                     </tr>
 
                                     {/**Driver assignment dropdown row */}
-                                    {assigningId === booking.bookingId && (
+                                    {assigningId === booking.booking_id && (
                                         <tr key={`assign-${booking.booking_id}`} className="bg-blue-50">
                                         <td colSpan={8} className="px-4 py-3">
                                         <div className="flex items-center gap-3">
@@ -210,8 +229,8 @@ export default function Bookings() {
                                             >
                                             <option value="">Choose a driver</option>
                                             {drivers.map(driver => (
-                                                <option key={driver.driver_id} value={driver.driver_id}>
-                                                {driver.name} — {driver.status} — {driver.capabilities}
+                                                <option key={driver.user_id} value={driver.user_id}>
+                                                {driver.name} — {driver.availability_status} — {driver.driver_capabilities}
                                                 </option>
                                             ))}
                                             </select>

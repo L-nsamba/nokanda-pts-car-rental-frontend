@@ -26,6 +26,7 @@ API.interceptors.response.use(
 export const getStats = () => API.get('/admin/stats')
 export const getBookings = () => API.get('/admin/bookings')
 export const getDrivers = () => API.get('/drivers')
+export const getAvailableDrivers = () => API.get('/drivers/available')
 export const getVehicles = () => API.get('/vehicles')
 export const getPricing = () => API.get('/pricing')
 export const getDestinations = () => API.get('/destinations')
