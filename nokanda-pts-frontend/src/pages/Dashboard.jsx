@@ -7,10 +7,28 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
+    BarController,
+    DoughnutController,
+    LineController,
     PointElement,
     LineElement,
-    plugins,
+    Filler,
 } from 'chart.js'
+
+ChartJS.register(
+    ArcElement,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    BarController,
+    DoughnutController,
+    LineController,
+    PointElement,
+    LineElement,
+    Filler,
+)
 import {
   faGauge,
   faBook,
@@ -20,25 +38,31 @@ import {
   faBell,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { Doughnut, Bar} from 'react-chartjs-2'
+import { Doughnut, Bar, Line} from 'react-chartjs-2'
 import Sidebar from "../components/Sidebar"
 import StatCard from "../components/StatCard"
-import { getStats, getBookings, getDestinations } from "../services/api"
+import { getStats, getBookings, getDestinations, getVehicles } from "../services/api"
 
 export default function Dashboard() {
     const [stats, setStats] = useState(null)
     const [bookings, setBookings] = useState([])
+    const [destinations, setDestinations] = useState([])
+    const [vehicles, setVehicles] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, bookingsRes] = await Promise.all([
+                const [statsRes, bookingsRes, destinationsRes, vehiclesRes] = await Promise.all([
                     getStats(),
                     getBookings(),
+                    getDestinations(),
+                    getVehicles(),
                 ])
                 setStats(statsRes.data)
                 setBookings(bookingsRes.data)
+                setDestinations(destinationsRes.data)
+                setVehicles(vehiclesRes.data)
             } catch (err) {
                 console.error('Failed to fetch dashboard data', err)
             } finally {
@@ -48,9 +72,19 @@ export default function Dashboard() {
         fetchData()
     }, [])
 
+    // Lookup maps to resolve booking foreign keys to readable labels
+    const destinationNameById = destinations.reduce((acc, dest) => {
+        acc[dest.destination_id] = dest.destination_name
+        return acc
+    }, {})
+    const vehicleTypeById = vehicles.reduce((acc, vehicle) => {
+        acc[vehicle.vehicle_id] = vehicle.vehicle_type
+        return acc
+    }, {})
+
     // Bookings for popular destinations chart
-    const destinationCounts = bookings.reduce((acc, bookings) => {
-        const dest = bookings.destination_id
+    const destinationCounts = bookings.reduce((acc, booking) => {
+        const dest = destinationNameById[booking.destination_id] || booking.destination_id
         acc[dest] = (acc[dest] || 0) + 1
         return acc
     }, {})
@@ -59,10 +93,18 @@ export default function Dashboard() {
 
     // Bookings for popular vehicle types
     const vehicleCounts = bookings.reduce((acc, booking) => {
-        const type = booking.vehicle_type || 'Unknown'
+        const type = vehicleTypeById[booking.vehicle_id] || 'Unknown'
         acc[type] = (acc[type] || 0) + 1
         return acc
     }, {})
+
+    // Bookings created over time
+    const bookingsByDate = bookings.reduce((acc, booking) => {
+        const date = (booking.created_at || '').slice(0, 10)
+        acc[date] = (acc[date] || 0) + 1
+        return acc
+    }, {})
+    const bookingTrend = Object.entries(bookingsByDate).sort(([a], [b]) => a.localeCompare(b))
 
     const doughnutData = {
         labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
@@ -100,8 +142,24 @@ export default function Dashboard() {
         }]
     }
 
+    // Booking trend chart design
+    const trendLineData = {
+        labels: bookingTrend.map(([date]) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+        datasets: [{
+            label: 'Bookings',
+            data: bookingTrend.map(([, count]) => count),
+            borderColor: '#15435B',
+            backgroundColor: 'rgba(21, 67, 91, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3,
+            pointBackgroundColor: '#15435B',
+        }]
+    }
+
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false} },
         scales: {
             x: { grid: {display: false} },
@@ -140,8 +198,68 @@ export default function Dashboard() {
                     <StatCard title="Active Trips" value={stats?.active_trips} icon={faBell}></StatCard>
                     <StatCard title="Available Drivers" value={stats?.available_drivers} icon={faIdCard}></StatCard>
                     <StatCard title="Available Vehicles" value={stats?.available_vehicles} icon={faCar}></StatCard>
-
                 </div>
+
+                {/**Charts: 2x2 grid, each panel takes half the row width */}
+                <div className="grid grid-cols-2 gap-4">
+
+                    {/**Booking status (donut chart) */}
+                    <div className="bg-white rounded-lg p-5 shadow-sm">
+                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B'}}>
+                            Status Breakdown
+                        </h2>
+                        <div className="flex justify-center">
+                            <div className="w-full max-w-xs h-56">
+                                <Doughnut
+                                    data={doughnutData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom',
+                                                align: 'center',
+                                                labels: { font: { size: 11 }, boxWidth: 10, padding: 12 }
+                                            }
+                                        }
+                                    }}
+                                >
+                                </Doughnut>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/**Popular destinations */}
+                    <div className="bg-white rounded-lg p-5 shadow-sm">
+                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
+                            Popular Destinations
+                        </h2>
+                        <div className="h-56">
+                            <Bar data={destinationBarData} options={chartOptions}></Bar>
+                        </div>
+                    </div>
+
+                    {/**Most used vehicle types */}
+                    <div className="bg-white rounded-lg p-5 shadow-sm">
+                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
+                            Most Used Vehicle Types
+                        </h2>
+                        <div className="h-56">
+                            <Bar data={vehicleBarData} options={chartOptions}></Bar>
+                        </div>
+                    </div>
+
+                    {/**Booking trend over time */}
+                    <div className="bg-white rounded-lg p-5 shadow-sm">
+                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
+                            Booking Trend
+                        </h2>
+                        <div className="h-56">
+                            <Line data={trendLineData} options={chartOptions}></Line>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     )
