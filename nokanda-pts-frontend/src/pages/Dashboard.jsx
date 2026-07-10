@@ -39,7 +39,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Doughnut, Bar, Line} from 'react-chartjs-2'
-import Sidebar from "../components/Sidebar"
 import StatCard from "../components/StatCard"
 import { getStats, getBookings } from "../services/api"
 
@@ -164,101 +163,88 @@ export default function Dashboard() {
     }
 
     if (loading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-400">Loading dashboard...</p>
-            </div>
-        )
+        return <p className="text-gray-400">Loading dashboard...</p>
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <Sidebar></Sidebar>
-
-            {/**Main content */}
-            <div className="ml-48 flex-1 p-8">
-
-                {/**Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
-                        Dashboard Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Welcome back, Admin
-                    </p>
-                </div>
-
-                {/**Stat cards */}
-                <div className="grid grid-cols-4 gap-4 mb-8">
-                    <StatCard title="Total Bookings" value={stats?.total_bookings} icon={faBook}></StatCard>
-                    <StatCard title="Active Trips" value={stats?.active_trips} icon={faBell}></StatCard>
-                    <StatCard title="Available Drivers" value={stats?.available_drivers} icon={faIdCard}></StatCard>
-                    <StatCard title="Available Vehicles" value={stats?.available_vehicles} icon={faCar}></StatCard>
-                </div>
-
-                {/**Charts: 2x2 grid, each panel takes half the row width */}
-                <div className="grid grid-cols-2 gap-4">
-
-                    {/**Booking status (donut chart) */}
-                    <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B'}}>
-                            STATUS BREAKDOWN
-                        </h2>
-                        <div className="flex justify-center">
-                            <div className="w-full max-w-xs h-56">
-                                <Doughnut
-                                    data={doughnutData}
-                                    options={{
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                position: 'bottom',
-                                                align: 'center',
-                                                labels: { font: { size: 11 }, boxWidth: 10, padding: 12 }
-                                            }
-                                        }
-                                    }}
-                                >
-                                </Doughnut>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/**Popular destinations */}
-                    <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                            POPULAR DESTINATIONS
-                        </h2>
-                        <div className="h-56">
-                            <Bar data={destinationBarData} options={chartOptions}></Bar>
-                        </div>
-                    </div>
-
-                    {/**Most used vehicle types */}
-                    <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                            MOST USED VEHICLES
-                        </h2>
-                        <div className="h-56">
-                            <Bar data={vehicleBarData} options={vehicleChartOptions}></Bar>
-                        </div>
-                    </div>
-
-                    {/**Booking trend over time */}
-                    <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                            BOOKING TREND
-                        </h2>
-                        <div className="h-56">
-                            <Line data={trendLineData} options={chartOptions}></Line>
-                        </div>
-                    </div>
-                </div>
-
+        <>
+            {/**Header */}
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
+                    Dashboard Overview
+                </h1>
+                <p className="text-gray-400 text-sm mt-1">
+                    Welcome back, Admin
+                </p>
             </div>
-        </div>
+
+            {/**Stat cards */}
+            <div className="grid grid-cols-4 gap-4 mb-8">
+                <StatCard title="Total Bookings" value={stats?.total_bookings} icon={faBook}></StatCard>
+                <StatCard title="Active Trips" value={stats?.active_trips} icon={faBell}></StatCard>
+                <StatCard title="Available Drivers" value={stats?.available_drivers} icon={faIdCard}></StatCard>
+                <StatCard title="Available Vehicles" value={stats?.available_vehicles} icon={faCar}></StatCard>
+            </div>
+
+            {/**Charts: 2x2 grid, each panel takes half the row width */}
+            <div className="grid grid-cols-2 gap-4">
+
+                {/**Booking status (donut chart) */}
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B'}}>
+                        STATUS BREAKDOWN
+                    </h2>
+                    <div className="flex justify-center">
+                        <div className="w-full max-w-xs h-56">
+                            <Doughnut
+                                data={doughnutData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            align: 'center',
+                                            labels: { font: { size: 11 }, boxWidth: 10, padding: 12 }
+                                        }
+                                    }
+                                }}
+                            >
+                            </Doughnut>
+                        </div>
+                    </div>
+                </div>
+
+                {/**Popular destinations */}
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                        POPULAR DESTINATIONS
+                    </h2>
+                    <div className="h-56">
+                        <Bar data={destinationBarData} options={chartOptions}></Bar>
+                    </div>
+                </div>
+
+                {/**Most used vehicle types */}
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                        MOST USED VEHICLES
+                    </h2>
+                    <div className="h-56">
+                        <Bar data={vehicleBarData} options={vehicleChartOptions}></Bar>
+                    </div>
+                </div>
+
+                {/**Booking trend over time */}
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                        BOOKING TREND
+                    </h2>
+                    <div className="h-56">
+                        <Line data={trendLineData} options={chartOptions}></Line>
+                    </div>
+                </div>
+            </div>
+        </>
     )
-
-
 }
