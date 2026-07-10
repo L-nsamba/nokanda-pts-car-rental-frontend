@@ -221,9 +221,31 @@ export default function Vehicles() {
                                             {vehicle.status}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-500 line-clamp-2 b-4">
+                                    <p className="text-xs text-gray-500 line-clamp-2 mb-4">
                                         {vehicle.description}
                                     </p>
+
+                                    {/** Actions */}
+                                    <div className="flex gap-2">
+                                        <button
+                                        onClick={() => handleEditClick(vehicle)}
+                                        className="flex-1 text-xs py-1.5 rounded text-white hover:opacity-80 transition-opacity"
+                                        style={{ backgroundColor: '#15435B'}}>
+                                        
+                                        Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleStatusToggle(vehicle)}
+                                            className={`flex-1 text-xs py-1.5 rounded font-medium transition-opacity hover:opacity-80 ${
+                                                vehicle.status === 'AVAILABLE'
+                                                ? 'bg-red-100 text-red-600'
+                                                : 'bg-green-100 text-green-600'
+                                            }`}
+                                            >
+                                            {vehicle.status === 'AVAILABLE' ? 'Mark Unavailable' : 'Mark Available'}
+                                        </button>
+
+                                    </div>
                                 </div>
 
                             </div>
@@ -231,7 +253,98 @@ export default function Vehicles() {
                     )}
 
                 </div>
+                <p className="text-xs text-gray-400 mt-4">
+                    Showing {filteredVehicles.length} of {vehicles.length} vehicles
+                </p>
             </div> 
+
+            {/**Edit Modal */}
+            {editingVehicle && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
+
+                        <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B' }}>
+                            Edit Vehicle
+                        </h2>
+                        <p className="text-sm text-gray-400 mb-5">{editingVehicle.vehicle_type}</p>
+
+                        <div className="flex flex-col gap-4">
+                       
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Vehicle Type
+                            </label>
+                            <select
+                            value={editForm.vehicle_type}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, vehicle_type: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                            >
+                            {VEHICLE_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Photo URL
+                            </label>
+                            <input
+                            type="text"
+                            value={editForm.photo_url}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, photo_url: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Description
+                            </label>
+                            <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B] resize-none"
+                            rows={3}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Status
+                            </label>
+                            <select
+                            value={editForm.status}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                            >
+                            <option value="AVAILABLE">Available</option>
+                            <option value="UNAVAILABLE">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-6">
+                        <button
+                        onClick={() => setEditingVehicle(null)}
+                        className="flex-1 py-2 rounded text-sm border border-gray-200 text-gray-500 hover:bg-gray-50">
+                        Cancel
+                        </button>
+                        
+                        <button
+                            onClick={handleEditSave}
+                            disabled={saving}
+                            className="flex-1 py-2 rounded text-sm text-white disabled:opacity-50"
+                            style={{ backgroundColor: '#15435B' }}
+                        >
+                            {saving ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+            )}
         </div>
     )
 }
