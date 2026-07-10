@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { getVehicles } from "../services/api"
 import API from "../services/api"
+import { useToast } from "../context/ToastContext"
 
 import {
   faCar
@@ -20,6 +21,7 @@ const VEHICLE_TYPES = [
 ]
 
 export default function Vehicles() {
+    const { showToast } = useToast()
     const [vehicles, setVehicles] = useState([])
     const [loading, setLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('')
@@ -73,6 +75,7 @@ export default function Vehicles() {
             setEditingVehicle(null)
         } catch (err) {
             console.error('Failed to update vehicle', err)
+            showToast(err.response?.data?.detail || 'Failed to update vehicle')
         } finally  {
             setSaving(false)
         }
@@ -91,6 +94,7 @@ export default function Vehicles() {
             )
         } catch (err) {
             console.error('Failed to toggle status', err)
+            showToast(err.response?.data?.detail || 'Failed to toggle status')
         }
     }
 

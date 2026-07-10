@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { getBookings, getAvailableDrivers } from "../services/api"
 import API from "../services/api"
+import { useToast } from "../context/ToastContext"
 
 const STATUS_COLORS = {
   PENDING: 'bg-yellow-100 text-yellow-700',
@@ -10,6 +11,7 @@ const STATUS_COLORS = {
 }
 
 export default function Bookings() {
+    const { showToast } = useToast()
     const [bookings, setBookings] = useState([])
     const [drivers, setDrivers] = useState([])
     const [loading, setLoading] = useState(true)
@@ -52,6 +54,7 @@ export default function Bookings() {
             }
         } catch (err) {
             console.error('Failed to update status', err)
+            showToast(err.response?.data?.detail || 'Failed to update status')
         }
     }
 
@@ -72,6 +75,7 @@ export default function Bookings() {
             setDrivers(driverRes.data)
         } catch (err) {
             console.error('Failed to assign driver', err)
+            showToast(err.response?.data?.detail || 'Failed to assign driver')
         } finally{
             setUpdating(false)
         }

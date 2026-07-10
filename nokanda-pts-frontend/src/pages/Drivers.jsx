@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { getDrivers } from "../services/api"
 import API from "../services/api"
+import { useToast } from "../context/ToastContext"
 
 const STATUS_COLORS = {
   AVAILABLE: 'bg-green-100 text-green-700',
@@ -9,6 +10,7 @@ const STATUS_COLORS = {
 }
 
 export default function Drivers() {
+    const { showToast } = useToast()
     const [drivers, setDrivers] =  useState([])
     const [loading, setLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('')
@@ -56,6 +58,7 @@ useEffect(() => {
                 setEditingDriver(null)
             } catch(err) {
                 console.error('Failed to update driver', err)
+                showToast(err.response?.data?.detail || 'Failed to update driver')
             } finally {
                 setSaving(false)
         }
