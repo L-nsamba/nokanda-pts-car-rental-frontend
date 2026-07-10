@@ -41,28 +41,22 @@ import {
 import { Doughnut, Bar, Line} from 'react-chartjs-2'
 import Sidebar from "../components/Sidebar"
 import StatCard from "../components/StatCard"
-import { getStats, getBookings, getDestinations, getVehicles } from "../services/api"
+import { getStats, getBookings } from "../services/api"
 
 export default function Dashboard() {
     const [stats, setStats] = useState(null)
     const [bookings, setBookings] = useState([])
-    const [destinations, setDestinations] = useState([])
-    const [vehicles, setVehicles] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, bookingsRes, destinationsRes, vehiclesRes] = await Promise.all([
+                const [statsRes, bookingsRes] = await Promise.all([
                     getStats(),
                     getBookings(),
-                    getDestinations(),
-                    getVehicles(),
                 ])
                 setStats(statsRes.data)
                 setBookings(bookingsRes.data)
-                setDestinations(destinationsRes.data)
-                setVehicles(vehiclesRes.data)
             } catch (err) {
                 console.error('Failed to fetch dashboard data', err)
             } finally {
@@ -72,19 +66,9 @@ export default function Dashboard() {
         fetchData()
     }, [])
 
-    // Lookup maps to resolve booking foreign keys to readable labels
-    const destinationNameById = destinations.reduce((acc, dest) => {
-        acc[dest.destination_id] = dest.destination_name
-        return acc
-    }, {})
-    const vehicleTypeById = vehicles.reduce((acc, vehicle) => {
-        acc[vehicle.vehicle_id] = vehicle.vehicle_type
-        return acc
-    }, {})
-
     // Bookings for popular destinations chart
     const destinationCounts = bookings.reduce((acc, booking) => {
-        const dest = destinationNameById[booking.destination_id] || booking.destination_id
+        const dest = booking.destination_name
         acc[dest] = (acc[dest] || 0) + 1
         return acc
     }, {})
@@ -93,7 +77,7 @@ export default function Dashboard() {
 
     // Bookings for popular vehicle types
     const vehicleCounts = bookings.reduce((acc, booking) => {
-        const type = vehicleTypeById[booking.vehicle_id] || 'Unknown'
+        const type = booking.vehicle_type || 'Unknown'
         acc[type] = (acc[type] || 0) + 1
         return acc
     }, {})
