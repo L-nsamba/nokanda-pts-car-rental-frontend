@@ -230,7 +230,7 @@ export default function Bookings() {
                                             <option value="">Choose a driver</option>
                                             {drivers.map(driver => (
                                                 <option key={driver.user_id} value={driver.user_id}>
-                                                {driver.name} — {driver.availability_status} — {driver.driver_capabilities}
+                                                {driver.name} — {driver.driver_capabilities}
                                                 </option>
                                             ))}
                                             </select>
