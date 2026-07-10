@@ -12,7 +12,7 @@ export default function StatCard({ title, value, icon}) {
 
             <div>
                 <p className="text-gray-500 text-xs uppercase tracking-wide">{title}</p>
-                <p className="text-2xl font-bold mt-1" style={{color: '#15435B'}}>
+                <p className="text-sm font-bold mt-1" style={{color: '#15435B'}}>
                     {value ?? '-'}
                 </p>
             </div>

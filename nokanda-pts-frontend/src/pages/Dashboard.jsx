@@ -151,6 +151,18 @@ export default function Dashboard() {
         }
     }
 
+    // Horizontal bar so long vehicle type labels don't get squeezed against a fixed-height chart
+    const vehicleChartOptions = {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
+            y: { grid: { display: false } }
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -189,8 +201,8 @@ export default function Dashboard() {
 
                     {/**Booking status (donut chart) */}
                     <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B'}}>
-                            Status Breakdown
+                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B'}}>
+                            STATUS BREAKDOWN
                         </h2>
                         <div className="flex justify-center">
                             <div className="w-full max-w-xs h-56">
@@ -215,8 +227,8 @@ export default function Dashboard() {
 
                     {/**Popular destinations */}
                     <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
-                            Popular Destinations
+                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                            POPULAR DESTINATIONS
                         </h2>
                         <div className="h-56">
                             <Bar data={destinationBarData} options={chartOptions}></Bar>
@@ -225,18 +237,18 @@ export default function Dashboard() {
 
                     {/**Most used vehicle types */}
                     <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
-                            Most Used Vehicle Types
+                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                            MOST USED VEHICLES
                         </h2>
                         <div className="h-56">
-                            <Bar data={vehicleBarData} options={chartOptions}></Bar>
+                            <Bar data={vehicleBarData} options={vehicleChartOptions}></Bar>
                         </div>
                     </div>
 
                     {/**Booking trend over time */}
                     <div className="bg-white rounded-lg p-5 shadow-sm">
-                        <h2 className="text-sm font-semibold mb-4" style={{ color: '#15435B' }}>
-                            Booking Trend
+                        <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
+                            BOOKING TREND
                         </h2>
                         <div className="h-56">
                             <Line data={trendLineData} options={chartOptions}></Line>
