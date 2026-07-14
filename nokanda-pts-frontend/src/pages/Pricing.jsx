@@ -7,37 +7,64 @@ const VEHICLE_TYPES = [
   'COASTER BUS (29 SEATS)', 'EXECUTIVE BUS (43 SEATS)', 'PRESIDENTIAL BUS (19 SEATS)'
 ]
 
+const DESTINATION_NAMES = [
+  'AIRPORT TRANSFERS', 'KIGALI', 'RWAMAGANA', 'KAYONZA', 'GATSIBO', 'BUGESERA',
+  'NGOMA', 'KIREHE', 'NYAGATARE', 'RULINDO', 'GICUMBI', 'GAKENKE', 'MUSANZE',
+  'BURERA', 'KAMONYI', 'MUHANGA', 'RUHANGO', 'HUYE', 'GISAGARA', 'NYARUGURU',
+  'NYAMAGABE', 'RUBAVU', 'KARONGI', 'RUTSIRO', 'NGORORERO', 'NYABIHU',
+  'NYAMASHEKE', 'RUSIZI'
+]
+
 const LIMIT = 10
+const SEARCH_DEBOUNCE_MS = 400
 
 export default function Pricing(){
     const [pricing, setPricing] =  useState([])
     const [total, setTotal] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
     const [loading, setLoading] = useState(true)
+    const [refreshing, setRefreshing] = useState(false)
     const [vehicleTypeFilter, setVehicleTypeFilter] = useState('')
+    const [destinationFilter, setDestinationFilter] = useState('')
+    const [searchInput, setSearchInput] = useState('')
     const [search, setSearch] = useState('')
     const [editingPrice, setEditingPrice] = useState('')
     const [newPrice, setNewPrice] = useState('')
     const [saving, setSaving] = useState(false)
 
+    // Debounce free-text search so it doesn't refetch on every keystroke
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setSearch(searchInput)
+            setCurrentPage(1)
+        }, SEARCH_DEBOUNCE_MS)
+        return () => clearTimeout(timeout)
+    }, [searchInput])
+
     useEffect(() => {
         fetchPricing()
-    }, [currentPage])
+    }, [currentPage, vehicleTypeFilter, destinationFilter, search])
 
     const fetchPricing = async () => {
-        setLoading(true)
+        setRefreshing(true)
         try {
             const skip = (currentPage - 1) * LIMIT
+            const filters = {}
+            if (vehicleTypeFilter) filters.vehicle_type = vehicleTypeFilter
+            if (destinationFilter) filters.destination_name = destinationFilter
+            if (search) filters.search = search
+
             const [pricingRes, countRes] = await Promise.all([
-                API.get(`/pricing?skip=${skip}&limit=${LIMIT}`),
-                API.get('/pricing/count')
+                API.get('/pricing', { params: { skip, limit: LIMIT, ...filters } }),
+                API.get('/pricing/count', { params: filters })
             ])
             setPricing(pricingRes.data)
-            setTotal(countRes.data.total)
+            setTotal(countRes.data)
         } catch (err) {
             console.error('Failed to fetch pricing', err)
         } finally {
             setLoading(false)
+            setRefreshing(false)
         }
     }
     
@@ -67,13 +94,224 @@ export default function Pricing(){
 
     const totalPages = Math.ceil(total / LIMIT)
 
-    const filteredPricing = pricing.filter(p => {
-        const matchesType = vehicleTypeFilter ? p.vehicle_type === vehicleTypeFilter : true
-        const matchesSearch = search
-            ? p.vehicle_type?.toLowerCase().includes(search.toLocaleLowerCase()) ||
-              p.destination_id?.toLowerCase().includes(search.toLowerCase())
-            : true
-        
-            return matchesType  && matchesSearch
-    })
+    if (loading) {
+        return <p className="text-gray-400">Loading pricing...</p>
+    }
+
+    return (
+        <>
+            {/**Header */}
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                    Pricing Overview
+                </h1>
+                <p className="text-gray-400 text-sm mt-1">
+                    Manage vehicle-destination pricing
+                </p>
+            </div>
+
+            {/** Filters */}
+            <div className="flex gap-3 mb-6">
+                <input
+                type="text"
+                placeholder="Search destination or vehicle type..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="border border-gray-200 rounded px-3 py-2 text-sm w-72 outline-none focus:border-[#15435B]">
+                </input>
+
+                <select
+                value={destinationFilter}
+                onChange={(e) => {
+                    setDestinationFilter(e.target.value)
+                    setCurrentPage(1)
+                }}
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                    <option value="">All Destinations</option>
+                    {DESTINATION_NAMES.map(name => (
+                        <option key={name} value={name}>{name}</option>
+                    ))}
+
+                </select>
+
+                <select
+                value={vehicleTypeFilter}
+                onChange={(e) => {
+                    setVehicleTypeFilter(e.target.value)
+                    setCurrentPage(1)
+                }}
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                    <option value="">All Vehicle Types</option>
+                    {VEHICLE_TYPES.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                    ))}
+
+                </select>
+            </div>
+
+            {/* Table */}
+            <div className={`bg-white rounded-lg shadow-sm overflow-hidden transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
+            <table className="w-full text-sm">
+                <thead>
+                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
+                    <th className="text-left px-4 py-3 font-medium">Destination</th>
+                    <th className="text-left px-4 py-3 font-medium">Vehicle Type</th>
+                    <th className="text-left px-4 py-3 font-medium">Unit Price (RWF)</th>
+                    <th className="text-left px-4 py-3 font-medium">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {pricing.length === 0 ? (
+                    <tr>
+                    <td colSpan={4} className="text-center py-8 text-gray-400">
+                        No pricing records found
+                    </td>
+                    </tr>
+                ) : (
+                    pricing.map((price, index) => (
+                    <tr
+                        key={price.pricing_id}
+                        className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    >
+                        <td className="px-4 py-3 text-gray-600">
+                        {price.destination_name || price.destination_id}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">
+                        {price.vehicle_type}
+                        </td>
+                        <td className="px-4 py-3 font-medium" style={{ color: '#15435B' }}>
+                        {price.unit_price?.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3">
+                        <button
+                            onClick={() => {
+                            setEditingPrice(price)
+                            setNewPrice(price.unit_price.toString())
+                            }}
+                            className="text-xs px-3 py-1 rounded text-white hover:opacity-80 transition-opacity"
+                            style={{ backgroundColor: '#15435B' }}
+                        >
+                            Edit Price
+                        </button>
+                        </td>
+                    </tr>
+                    ))
+                )}
+                </tbody>
+            </table>
+            </div>
+
+            {/** Pagination */}
+            <div className="flex items-center justify-between mt-4">
+                <p className="text-xs text-gray-400">
+                    Showing {((currentPage  - 1) * LIMIT) + 1}-{Math.min(currentPage * LIMIT, total)} of {total} records
+                </p>
+
+                <div className="flex items-center gap-2">
+                    <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="text-xs px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                    >
+                    Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page =>
+                        page === 1 ||
+                        page === totalPages ||
+                        Math.abs(page - currentPage) <= 1
+                    )
+                    .reduce((acc, page, idx, arr) => {
+                        if (idx > 0 && page - arr[idx - 1] > 1) {
+                        acc.push('...')
+                        }
+                        acc.push(page)
+                        return acc
+                    }, [])
+                    .map((page, idx) =>
+                        page === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="text-xs text-gray-400 px-1">...</span>
+                        ) : (
+                        <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+                            currentPage === page
+                                ? 'text-white border-transparent'
+                                : 'border-gray-200 hover:bg-gray-50'
+                            }`}
+                            style={currentPage === page ? { backgroundColor: '#15435B' } : {}}
+                        >
+                            {page}
+                        </button>
+                        )
+                    )
+                    }
+                    <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="text-xs px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                    >
+                    Next
+                    </button>
+
+                </div>
+            </div>
+
+            {/** Edit Price Modal */}
+            {editingPrice && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
+
+                        <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B'}}>
+                            Edit Price
+                        </h2>
+                        <p className="text-sm text-gray-400 mb-1">
+                            {editingPrice.destination_name || editingPrice.destination_id} 
+                        </p>
+                        <p className="text-xs text-gray-400 mb-5">
+                            {editingPrice.vehicle_type}
+                        </p>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                                Unit Price (RWF)
+                            </label>
+                            <input
+                            type="number"
+                            value={newPrice}
+                            onChange={(e) => setNewPrice(e.target.value)}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
+                            </input>
+                        </div>
+
+                        <div className="flex gap-3 mt-6">
+                            <button
+                            onClick={() => {
+                                setEditingPrice(null)
+                                setNewPrice('')
+                            }}
+                            className="flex-1 py-2 rounded text-sm border-gray-200 text-gray-500 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                            onClick={handleEditSave}
+                            disabled={saving}
+                            className="flex-1 py-2 rounded text-sm text-white disabled:opacity-50"
+                            style={{ backgroundColor: '#15435B'}}
+                            >
+                                {saving ? 'Saving' : 'Save'}
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            )}
+        </>
+    )
 }

@@ -169,7 +169,7 @@ export default function Dashboard() {
     return (
         <>
             {/**Header */}
-            <div className="mb-8">
+            <div className="mb-6">
                 <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
                     Dashboard Overview
                 </h1>
