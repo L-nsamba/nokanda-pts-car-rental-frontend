@@ -9,6 +9,13 @@ const STATUS_COLORS = {
   TRAVELLING: 'bg-blue-100 text-blue-700',
 }
 
+// Display-only labels — TRAVELLING is the backend/enum value, "Booked" is just how it reads to the admin
+const STATUS_LABELS = {
+  AVAILABLE: 'Available',
+  UNAVAILABLE: 'Unavailable',
+  TRAVELLING: 'Booked',
+}
+
 export default function Drivers() {
     const { showToast } = useToast()
     const [drivers, setDrivers] =  useState([])
@@ -93,7 +100,7 @@ useEffect(() => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {['AVAILABLE', 'TRAVELLING', 'UNAVAILABLE'].map(status => (
                     <div key={status} className="bg-white rounded-lg p-4 shadow-sm">
-                        <p className="text-xs text-gray-400 uppercase tracking-wide">{status.replace('_', ' ')}</p>
+                        <p className="text-xs text-gray-400 uppercase tracking-wide">{STATUS_LABELS[status]}</p>
                         <p className="text-2xl font-bold mt-1" style={{ color: '#15435B'}}>
                             {drivers.filter(d => d.availability_status === status).length}
                         </p>
@@ -117,7 +124,7 @@ useEffect(() => {
                     className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
                     <option value="">All Statuses</option>
                     <option value="AVAILABLE">Available</option>
-                    <option value="TRAVELLING">Travelling</option>
+                    <option value="TRAVELLING">Booked</option>
                     <option value="UNAVAILABLE">Unavailable</option>
                 </select>
 
@@ -162,7 +169,7 @@ useEffect(() => {
                         <td className="px-4 py-3 text-gray-500">{driver.driver_capabilities}</td>
                         <td className="px-4 py-3">
                         <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[driver.availability_status]}`}>
-                            {driver.availability_status.replace('_', ' ')}
+                            {STATUS_LABELS[driver.availability_status]}
                         </span>
                         </td>
                         <td className="px-4 py-3 text-gray-500">
@@ -210,7 +217,7 @@ useEffect(() => {
                                 className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
 
                                 <option value="AVAILABLE">Available</option>
-                                <option value="TRAVELLING">Travelling</option>
+                                <option value="TRAVELLING">Booked</option>
                                 <option value="UNAVAILABLE">Unavailable</option>
                                 </select>
                             </div>

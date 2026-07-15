@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { timeAgo } from "../utils/timeAgo";
-import { getBookings } from "../services/api";
+import { getBookings, getPricing } from "../services/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHourglassHalf,
@@ -9,7 +9,8 @@ import {
   faCalendarXmark,
   faCar,
   faArrowsRotate,
-  faUser
+  faUser,
+  faMoneyBill
 } from "@fortawesome/free-solid-svg-icons";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 
@@ -22,7 +23,7 @@ const STATUS_ICONS =  {
     CANCELLED: <FontAwesomeIcon icon={faCalendarXmark}></FontAwesomeIcon>,
 }
 
-function generateNotifications(bookings) {
+function generateNotifications(bookings, pricing) {
     const notifications = []
 
     bookings.forEach(booking => {
@@ -67,6 +68,25 @@ function generateNotifications(bookings) {
             })
         }
     })
+
+    pricing.forEach(price => {
+        const createdAt = new Date(price.created_at)
+        const updatedAt = new Date(price.updated_at)
+        const timeDiff = Math.abs(updatedAt - createdAt)
+
+        // Price update notification (only once a seeded price has actually been edited)
+        if (timeDiff > 5000) {
+            notifications.push({
+            id: `price-${price.pricing_id}`,
+            type: 'PRICE_UPDATE',
+            icon: <FontAwesomeIcon icon={faMoneyBill} />,
+            title: 'Price updated',
+            detail: `${price.vehicle_type || 'Vehicle'} → ${price.destination_name || 'Destination'} — ${price.unit_price?.toLocaleString() || '—'} RWF`,
+            time: price.updated_at,
+            booking_id: null,
+            })
+        }
+    })
     // Sort by most recent first
     return notifications.sort((a, b) => new Date(b.time) - new Date(a.time))
 }
@@ -80,8 +100,11 @@ export default function Notifications() {
 
     const fetchAndProcess = async () => {
         try {
-            const res = await getBookings()
-            const generated = generateNotifications(res.data)
+            const [bookingRes, pricingRes] = await Promise.all([
+                getBookings(),
+                getPricing()
+            ])
+            const generated = generateNotifications(bookingRes.data, pricingRes.data)
             setNotifications(generated)
             setLastUpdated(new Date())
         } catch (err) {
@@ -138,6 +161,7 @@ export default function Notifications() {
                 { label: 'New Bookings', icon: <FontAwesomeIcon icon={faHourglassHalf}></FontAwesomeIcon>, value: 'NEW_BOOKING' },
                 { label: 'Status Updates', icon: <FontAwesomeIcon icon={faArrowsRotate}></FontAwesomeIcon>, value: 'STATUS_UPDATE' },
                 { label: 'Driver Assigned', icon: <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>,value: 'DRIVER_ASSIGNED' },
+                { label: 'Price Updates', icon: <FontAwesomeIcon icon={faMoneyBill}></FontAwesomeIcon>, value: 'PRICE_UPDATE' },
             ].map(tab => (
                 <button
                 key={tab.value}
