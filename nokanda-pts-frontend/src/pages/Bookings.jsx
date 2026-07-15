@@ -108,18 +108,18 @@ export default function Bookings() {
             </div>
 
             {/**Filters */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <input
                 type="text"
                 placeholder="Search destination, vehicle, driver..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-72 outline-none focus:border-[#15435B]">
+                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-72 outline-none focus:border-[#15435B]">
                 </input>
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B] w-full sm:w-auto"
                 >
                     <option value="">All Statuses</option>
                     <option value="PENDING">Pending</option>
@@ -132,7 +132,8 @@ export default function Bookings() {
 
             {/**Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                             <th className="text-left px-4 py-3 font-medium">Destination</th>
@@ -246,6 +247,7 @@ export default function Bookings() {
                         )}
                     </tbody>
                 </table>
+              </div>
             </div>
 
             {/**Pagination hint*/}

@@ -140,20 +140,20 @@ export default function Vehicles() {
             </div>
 
             {/** Filters */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
 
                 <input
                 type="text"
                 placeholder="Search by type...."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-64 outline-none focus:border-[#15435B]">
+                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-[#15435B]">
                 </input>
 
                 <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
 
                     <option value="">All Statues</option>
                     <option value="AVAILABLE">Available</option>
@@ -164,7 +164,7 @@ export default function Vehicles() {
                 <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
 
                     <option value="">All Types</option>
                     {VEHICLE_TYPES.map(type => (
@@ -174,9 +174,9 @@ export default function Vehicles() {
             </div>
 
             {/** Vehicle grid */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredVehicles.length === 0 ? (
-                    <div className="col-span-3 text-center py-8 text-gray-400">
+                    <div className="col-span-full text-center py-8 text-gray-400">
                         No vehicles found
                     </div>
 
@@ -254,7 +254,7 @@ export default function Vehicles() {
             {/**Edit Modal */}
             {editingVehicle && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
+                    <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] shadow-xl">
 
                         <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B' }}>
                             Edit Vehicle

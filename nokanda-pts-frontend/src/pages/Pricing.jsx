@@ -111,13 +111,13 @@ export default function Pricing(){
             </div>
 
             {/** Filters */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <input
                 type="text"
                 placeholder="Search destination or vehicle type..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-72 outline-none focus:border-[#15435B]">
+                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-72 outline-none focus:border-[#15435B]">
                 </input>
 
                 <select
@@ -126,7 +126,7 @@ export default function Pricing(){
                     setDestinationFilter(e.target.value)
                     setCurrentPage(1)
                 }}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
                     <option value="">All Destinations</option>
                     {DESTINATION_NAMES.map(name => (
                         <option key={name} value={name}>{name}</option>
@@ -140,7 +140,7 @@ export default function Pricing(){
                     setVehicleTypeFilter(e.target.value)
                     setCurrentPage(1)
                 }}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
                     <option value="">All Vehicle Types</option>
                     {VEHICLE_TYPES.map(type => (
                         <option key={type} value={type}>{type}</option>
@@ -151,7 +151,8 @@ export default function Pricing(){
 
             {/* Table */}
             <div className={`bg-white rounded-lg shadow-sm overflow-hidden transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-sm">
                 <thead>
                 <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                     <th className="text-left px-4 py-3 font-medium">Destination</th>
@@ -199,6 +200,7 @@ export default function Pricing(){
                 )}
                 </tbody>
             </table>
+            </div>
             </div>
 
             {/** Pagination */}
@@ -261,7 +263,7 @@ export default function Pricing(){
             {/** Edit Price Modal */}
             {editingPrice && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
+                    <div className="bg-white rounded-lg p-6 w-80 max-w-[90vw] shadow-xl">
 
                         <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B'}}>
                             Edit Price

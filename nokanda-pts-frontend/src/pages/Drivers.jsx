@@ -90,7 +90,7 @@ useEffect(() => {
             </div>
 
             {/**Summary stat cards */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {['AVAILABLE', 'TRAVELLING', 'UNAVAILABLE'].map(status => (
                     <div key={status} className="bg-white rounded-lg p-4 shadow-sm">
                         <p className="text-xs text-gray-400 uppercase tracking-wide">{status.replace('_', ' ')}</p>
@@ -102,19 +102,19 @@ useEffect(() => {
             </div>
 
             {/**Filters */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <input
                 type="text"
                 placeholder="Search by name..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-64 outline-none focus:border-[#15435B]">
+                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-[#15435B]">
                 </input>
 
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
                     <option value="">All Statuses</option>
                     <option value="AVAILABLE">Available</option>
                     <option value="TRAVELLING">Travelling</option>
@@ -124,7 +124,7 @@ useEffect(() => {
                 <select
                     value={capabilityFilter}
                     onChange={(e) => setCapabilityFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none">
+                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
                     <option value="">All Capabilities</option>
                     <option value="MANUAL">Manual</option>
                     <option value="AUTOMATIC">Automatic</option>
@@ -134,7 +134,8 @@ useEffect(() => {
 
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
                 <thead>
                 <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                     <th className="text-left px-4 py-3 font-medium">Name</th>
@@ -182,6 +183,7 @@ useEffect(() => {
                 </tbody>
             </table>
             </div>
+            </div>
 
             <p className="text-xs  text-gray-400 mt-4">
                 Showing {filteredDrivers.length} of {drivers.length} drivers
@@ -190,7 +192,7 @@ useEffect(() => {
             {/**Edit Modal */}
             {editingDriver && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
+                    <div className="bg-white rounded-lg p-6 w-80 max-w-[90vw] shadow-xl">
 
                         <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B'}}>
                             Edit Driver

@@ -179,7 +179,7 @@ export default function Dashboard() {
             </div>
 
             {/**Stat cards */}
-            <div className="grid grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatCard title="Total Bookings" value={stats?.total_bookings} icon={faBook}></StatCard>
                 <StatCard title="Active Trips" value={stats?.active_trips} icon={faBell}></StatCard>
                 <StatCard title="Available Drivers" value={stats?.available_drivers} icon={faIdCard}></StatCard>
@@ -187,7 +187,7 @@ export default function Dashboard() {
             </div>
 
             {/**Charts: 2x2 grid, each panel takes half the row width */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 {/**Booking status (donut chart) */}
                 <div className="bg-white rounded-lg p-5 shadow-sm">

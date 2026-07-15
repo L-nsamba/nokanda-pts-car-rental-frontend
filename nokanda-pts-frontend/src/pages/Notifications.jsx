@@ -108,7 +108,7 @@ export default function Notifications() {
     return (
         <>
             {/**Header */}
-            <div className="flex items-start justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
                         Notifications Overview
@@ -123,7 +123,7 @@ export default function Notifications() {
                 {/** Manual refresh */}
                 <button
                     onClick={fetchAndProcess}
-                    className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity"
+                    className="flex items-center justify-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
                     style={{ backgroundColor: '#15435B' }}
                 >
                     <FontAwesomeIcon icon={faArrowsRotate} />
@@ -132,7 +132,7 @@ export default function Notifications() {
             </div>
 
             {/**Filter tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-6">
             {[
                 { label: 'All', value: '' },
                 { label: 'New Bookings', icon: <FontAwesomeIcon icon={faHourglassHalf}></FontAwesomeIcon>, value: 'NEW_BOOKING' },

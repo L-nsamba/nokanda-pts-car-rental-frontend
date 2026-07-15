@@ -10,6 +10,7 @@ import {
   faMoneyBill,
   faBell,
   faRightFromBracket,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
@@ -22,7 +23,7 @@ const navItems = [
 
 ]
 
-export default function Sidebar()  {
+export default function Sidebar({ isOpen, onClose })  {
     const navigate = useNavigate()
 
     const handleLogout = () => {
@@ -32,13 +33,18 @@ export default function Sidebar()  {
 
     return (
         <div
-            className="fixed top-0 left-0 h-screen w-48 flex flex-col py-6 px-4 z-10"
+            className={`fixed top-0 left-0 h-screen w-48 flex flex-col py-6 px-4 z-30 transition-transform duration-200 md:translate-x-0 ${
+                isOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
             style={{backgroundColor: '#15435B'}}
         >
-        
+
             {/**Logo */}
-            <div className="mb-8 px-2">
-                <img src={ptsLogo} alt="PTS" className="w-40 brightness-0 invert"></img>
+            <div className="mb-8 px-2 flex items-center justify-between">
+                <img src={ptsLogo} alt="PTS" className="w-32 brightness-0 invert"></img>
+                <button onClick={onClose} className="md:hidden text-white">
+                    <FontAwesomeIcon icon={faXmark} />
+                </button>
             </div>
 
             {/**Nav Items */}
@@ -47,6 +53,7 @@ export default function Sidebar()  {
                 <NavLink
                     key={item.path}
                     to={item.path}
+                    onClick={onClose}
                     className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors ${
                         isActive
