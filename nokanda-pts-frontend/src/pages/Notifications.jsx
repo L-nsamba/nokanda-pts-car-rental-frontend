@@ -7,8 +7,11 @@ import {
   faCalendarCheck,
   faClipboardCheck,
   faCalendarXmark,
-  faCar
+  faCar,
+  faArrowsRotate,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
+import { icon } from "@fortawesome/fontawesome-svg-core";
 
 const POLL_INTERVAL = 15000
 
@@ -97,4 +100,105 @@ export default function Notifications() {
     const filteredNotifications = notifications.filter(n => 
         filter ? n.type === filter : true
     )
+
+    if (loading) {
+        return <p className="text-gray-400">Loading notifications...</p>
+    }
+
+    return (
+        <>
+            {/**Header */}
+            <div className="flex items-start justify-between mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Notifications Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                    {lastUpdated
+                        ? `Last updated ${timeAgo(lastUpdated)}`
+                        : 'Loading...'}
+                    </p>
+                </div>
+
+                {/** Manual refresh */}
+                <button
+                    onClick={fetchAndProcess}
+                    className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: '#15435B' }}
+                >
+                    <FontAwesomeIcon icon={faArrowsRotate} />
+                    Refresh Now
+                </button>
+            </div>
+
+            {/**Filter tabs */}
+            <div className="flex gap-2 mb-6">
+            {[
+                { label: 'All', value: '' },
+                { label: 'New Bookings', icon: <FontAwesomeIcon icon={faHourglassHalf}></FontAwesomeIcon>, value: 'NEW_BOOKING' },
+                { label: 'Status Updates', icon: <FontAwesomeIcon icon={faArrowsRotate}></FontAwesomeIcon>, value: 'STATUS_UPDATE' },
+                { label: 'Driver Assigned', icon: <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>,value: 'DRIVER_ASSIGNED' },
+            ].map(tab => (
+                <button
+                key={tab.value}
+                onClick={() => setFilter(tab.value)}
+                className={`text-xs px-4 py-2 rounded transition-colors ${
+                    filter === tab.value
+                    ? 'text-white'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+                style={filter === tab.value ? { backgroundColor: '#15435B' } : {}}
+                >
+                {tab.label}
+                </button>
+            ))}
+            </div>
+
+            {/** Notification count */}
+            <p className="text-xs text-gray-400 mb-4">
+                {filteredNotifications.length} notification{filteredNotifications.length !== 1 ? 's' : ''}
+            </p>
+
+            {/** Notifications list */}
+            {loading ? (
+                <div className="text-center py-8 text-gray-400">Loading notifications....</div>
+            ) : filteredNotifications.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">No notifications</div>
+            ) : (
+                <div className="flex flex-col gap-3">
+                    {filteredNotifications.map(notification => (
+                        <div
+                        key={notification.id}
+                        className="bg-white rounded-lg px-5 py-4 shadow-sm flex items-start gap-4">
+
+                            {/* Icon */}
+                            <span className="text-xl mt-0.5">{notification.icon}</span>
+
+                            {/* Content */}
+                            <div className="flex-1">
+                            <p className="text-sm font-medium" style={{ color: '#15435B' }}>
+                                {notification.title}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                {notification.detail}
+                            </p>
+                            </div>
+
+                            {/* Time */}
+                            <div className="text-right flex-shrink-0">
+                            <p
+                                className="text-xs text-gray-400"
+                                title={new Date(notification.time).toLocaleString()}
+                            >
+                                {timeAgo(notification.time)}
+                            </p>
+                            </div>
+                        </div>
+                    ))}
+
+                </div>
+            )}
+        </>
+    )
+
 }
