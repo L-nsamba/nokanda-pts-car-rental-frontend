@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getVehicles } from "../services/api"
 import API from "../services/api"
 import { useToast } from "../context/ToastContext"
+import Skeleton from "../components/Skeleton"
 
 import {
   faCar
@@ -108,7 +109,53 @@ export default function Vehicles() {
     })
 
     if (loading) {
-        return <p className="text-gray-400">Loading vehicles...</p>
+        return (
+            <>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Vehicle Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage vehicle details and availability
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg p-4 shadow-sm">
+                            <Skeleton className="h-3 w-20 mb-2" />
+                            <Skeleton className="h-6 w-10" />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <Skeleton className="h-9 w-full sm:w-64" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <Skeleton className="h-40 w-full rounded-none" />
+                            <div className="p-4">
+                                <div className="flex items-start justify-between mb-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-4 w-14" />
+                                </div>
+                                <Skeleton className="h-3 w-full mt-2 mb-1" />
+                                <Skeleton className="h-3 w-2/3 mb-4" />
+                                <div className="flex gap-2">
+                                    <Skeleton className="h-7 flex-1" />
+                                    <Skeleton className="h-7 flex-1" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </>
+        )
     }
 
     return (

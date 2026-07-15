@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getDrivers } from "../services/api"
 import API from "../services/api"
 import { useToast } from "../context/ToastContext"
+import Skeleton from "../components/Skeleton"
 
 const STATUS_COLORS = {
   AVAILABLE: 'bg-green-100 text-green-700',
@@ -81,7 +82,60 @@ useEffect(() => {
     })
 
     if (loading) {
-        return <p className="text-gray-400">Loading drivers...</p>
+        return (
+            <>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Drivers Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage driver profiles and availability
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg p-4 shadow-sm">
+                            <Skeleton className="h-3 w-20 mb-2" />
+                            <Skeleton className="h-6 w-10" />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <Skeleton className="h-9 w-full sm:w-64" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[640px] text-sm">
+                            <thead>
+                                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
+                                    <th className="text-left px-4 py-3 font-medium">Name</th>
+                                    <th className="text-left px-4 py-3 font-medium">Capabilities</th>
+                                    <th className="text-left px-4 py-3 font-medium">Status</th>
+                                    <th className="text-left px-4 py-3 font-medium">Completed Trips</th>
+                                    <th className="text-left px-4 py-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        {Array.from({ length: 5 }).map((__, j) => (
+                                            <td key={j} className="px-4 py-3">
+                                                <Skeleton className="h-4 w-full max-w-[100px]" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </>
+        )
     }
 
     return (

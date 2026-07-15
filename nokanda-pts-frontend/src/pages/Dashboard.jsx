@@ -40,6 +40,7 @@ import {
 
 import { Doughnut, Bar, Line} from 'react-chartjs-2'
 import StatCard from "../components/StatCard"
+import Skeleton from "../components/Skeleton"
 import { getStats, getBookings } from "../services/api"
 
 export default function Dashboard() {
@@ -163,7 +164,39 @@ export default function Dashboard() {
     }
 
     if (loading) {
-        return <p className="text-gray-400">Loading dashboard...</p>
+        return (
+            <>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
+                        Dashboard Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Welcome back, Admin
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg p-5 shadow-sm flex items-center gap-4">
+                            <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+                            <div className="flex-1">
+                                <Skeleton className="h-3 w-16 mb-2" />
+                                <Skeleton className="h-4 w-10" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg p-5 shadow-sm">
+                            <Skeleton className="h-3 w-32 mx-auto mb-4" />
+                            <Skeleton className="h-56 w-full" />
+                        </div>
+                    ))}
+                </div>
+            </>
+        )
     }
 
     return (

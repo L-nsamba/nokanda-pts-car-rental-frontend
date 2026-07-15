@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getBookings, getAvailableDrivers } from "../services/api"
 import API from "../services/api"
 import { useToast } from "../context/ToastContext"
+import Skeleton from "../components/Skeleton"
 
 const STATUS_COLORS = {
   PENDING: 'bg-yellow-100 text-yellow-700',
@@ -92,7 +93,53 @@ export default function Bookings() {
     })
 
     if (loading) {
-        return <p className="text-gray-400">Loading bookings...</p>
+        return (
+            <>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Bookings Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage and assign drivers to bookings
+                    </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <Skeleton className="h-9 w-full sm:w-72" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[720px] text-sm">
+                            <thead>
+                                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
+                                    <th className="text-left px-4 py-3 font-medium">Destination</th>
+                                    <th className="text-left px-4 py-3 font-medium">Vehicle</th>
+                                    <th className="text-left px-4 py-3 font-medium">Start Date</th>
+                                    <th className="text-left px-4 py-3 font-medium">Days</th>
+                                    <th className="text-left px-4 py-3 font-medium">Total (RWF)</th>
+                                    <th className="text-left px-4 py-3 font-medium">Status</th>
+                                    <th className="text-left px-4 py-3 font-medium">Driver</th>
+                                    <th className="text-left px-4 py-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        {Array.from({ length: 8 }).map((__, j) => (
+                                            <td key={j} className="px-4 py-3">
+                                                <Skeleton className="h-4 w-full max-w-[100px]" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </>
+        )
     }
 
     return (

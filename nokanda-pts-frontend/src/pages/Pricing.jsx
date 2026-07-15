@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react" 
+import { useEffect, useState } from "react"
 import API from "../services/api"
+import Skeleton from "../components/Skeleton"
 
 const VEHICLE_TYPES = [
   'BMW/LC 300', 'V8', 'TXL PRADO', 'TOYOTA RAV4',
@@ -95,7 +96,50 @@ export default function Pricing(){
     const totalPages = Math.ceil(total / LIMIT)
 
     if (loading) {
-        return <p className="text-gray-400">Loading pricing...</p>
+        return (
+            <>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Pricing Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage vehicle-destination pricing
+                    </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <Skeleton className="h-9 w-full sm:w-72" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                    <Skeleton className="h-9 w-full sm:w-40" />
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[560px] text-sm">
+                            <thead>
+                                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
+                                    <th className="text-left px-4 py-3 font-medium">Destination</th>
+                                    <th className="text-left px-4 py-3 font-medium">Vehicle Type</th>
+                                    <th className="text-left px-4 py-3 font-medium">Unit Price (RWF)</th>
+                                    <th className="text-left px-4 py-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        {Array.from({ length: 4 }).map((__, j) => (
+                                            <td key={j} className="px-4 py-3">
+                                                <Skeleton className="h-4 w-full max-w-[120px]" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </>
+        )
     }
 
     return (

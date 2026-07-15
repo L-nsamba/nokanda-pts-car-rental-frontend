@@ -12,7 +12,7 @@ import {
   faUser,
   faMoneyBill
 } from "@fortawesome/free-solid-svg-icons";
-import { icon } from "@fortawesome/fontawesome-svg-core";
+import Skeleton from "../components/Skeleton";
 
 const POLL_INTERVAL = 15000
 
@@ -124,10 +124,6 @@ export default function Notifications() {
         filter ? n.type === filter : true
     )
 
-    if (loading) {
-        return <p className="text-gray-400">Loading notifications...</p>
-    }
-
     return (
         <>
             {/**Header */}
@@ -185,7 +181,18 @@ export default function Notifications() {
 
             {/** Notifications list */}
             {loading ? (
-                <div className="text-center py-8 text-gray-400">Loading notifications....</div>
+                <div className="flex flex-col gap-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg px-5 py-4 shadow-sm flex items-start gap-4">
+                            <Skeleton className="w-6 h-6 rounded-full flex-shrink-0" />
+                            <div className="flex-1">
+                                <Skeleton className="h-4 w-40 mb-2" />
+                                <Skeleton className="h-3 w-64" />
+                            </div>
+                            <Skeleton className="h-3 w-12 flex-shrink-0" />
+                        </div>
+                    ))}
+                </div>
             ) : filteredNotifications.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">No notifications</div>
             ) : (
