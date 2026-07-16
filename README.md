@@ -57,4 +57,5 @@ nokanda-pts-car-rental-frontend/
   
 ## Acknowledgements
 Special thanks to Mr. Bapu and the team at Hexakomb for the 
-guidance, support and opportunity to build this project during my Yr 2 Trimester 2 Internship 2026. 
+guidance, support and opportunity to build this project during my Year 2, Trimester 2, Internship at the African Leadership University in 2026. 
+ 
