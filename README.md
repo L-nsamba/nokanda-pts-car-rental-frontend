@@ -1,6 +1,8 @@
 # Nokanda PTS Car Rental Frontend
 React admin dashboard for the Nokanda PTS Car Rental system built by me during my internship with Hexakomb
 
+The backend repository can be found here: https://github.com/L-nsamba/nokanda-pts-car-rental-backend.git
+
 ## Tech Stack
 - React + Vite
 - Tailwind CSS
