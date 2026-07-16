@@ -36,6 +36,13 @@ export default function Vehicles() {
         status: ''
     })
     const [saving, setSaving] = useState(false)
+    const [showCreateModal, setShowCreateModal] = useState(false)
+    const [createForm, setCreateForm] = useState({
+        vehicle_type: VEHICLE_TYPES[0],
+        photo_url: '',
+        description: ''
+    })
+    const [creating, setCreating] = useState(false)
 
     useEffect(() => {
         fetchVehicles()
@@ -79,6 +86,22 @@ export default function Vehicles() {
             showToast(err.response?.data?.detail || 'Failed to update vehicle')
         } finally  {
             setSaving(false)
+        }
+    }
+
+    const handleCreateSave = async () => {
+        if (!createForm.photo_url || !createForm.description) return
+        setCreating(true)
+        try {
+            const res = await API.post('/vehicles', createForm)
+            setVehicles(prev => [res.data, ...prev])
+            setShowCreateModal(false)
+            setCreateForm({ vehicle_type: VEHICLE_TYPES[0], photo_url: '', description: '' })
+        } catch (err) {
+            console.error('Failed to create vehicle', err)
+            showToast(err.response?.data?.detail || 'Failed to create vehicle')
+        } finally {
+            setCreating(false)
         }
     }
 
@@ -161,13 +184,23 @@ export default function Vehicles() {
     return (
         <>
             {/**Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                    Vehicle Overview
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Manage vehicle details and availability
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Vehicle Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage vehicle details and availability
+                    </p>
+                </div>
+
+                <button
+                onClick={() => setShowCreateModal(true)}
+                className="text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
+                style={{ backgroundColor: '#15435B' }}
+                >
+                    Add Vehicle
+                </button>
             </div>
 
             {/** Stat cards */}
@@ -378,6 +411,85 @@ export default function Vehicles() {
                             style={{ backgroundColor: '#15435B' }}
                         >
                             {saving ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+            )}
+
+            {/**Add Vehicle Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] shadow-xl">
+
+                        <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B' }}>
+                            Add Vehicle
+                        </h2>
+                        <p className="text-sm text-gray-400 mb-5">
+                            New vehicles start out Available
+                        </p>
+
+                        <div className="flex flex-col gap-4">
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Vehicle Type
+                            </label>
+                            <select
+                            value={createForm.vehicle_type}
+                            onChange={(e) => setCreateForm(prev => ({ ...prev, vehicle_type: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                            >
+                            {VEHICLE_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Photo URL
+                            </label>
+                            <input
+                            type="text"
+                            value={createForm.photo_url}
+                            onChange={(e) => setCreateForm(prev => ({ ...prev, photo_url: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Description
+                            </label>
+                            <textarea
+                            value={createForm.description}
+                            onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B] resize-none"
+                            rows={3}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-6">
+                        <button
+                        onClick={() => {
+                            setShowCreateModal(false)
+                            setCreateForm({ vehicle_type: VEHICLE_TYPES[0], photo_url: '', description: '' })
+                        }}
+                        className="flex-1 py-2 rounded text-sm border border-gray-200 text-gray-500 hover:bg-gray-50">
+                        Cancel
+                        </button>
+
+                        <button
+                            onClick={handleCreateSave}
+                            disabled={creating || !createForm.photo_url || !createForm.description}
+                            className="flex-1 py-2 rounded text-sm text-white disabled:opacity-50"
+                            style={{ backgroundColor: '#15435B' }}
+                        >
+                            {creating ? 'Adding...' : 'Add Vehicle'}
                         </button>
                     </div>
 
