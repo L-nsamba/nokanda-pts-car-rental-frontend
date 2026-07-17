@@ -120,17 +120,17 @@ export default function Bookings() {
 
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[720px] table-fixed text-sm">
+                        <table className="w-full min-w-[800px] table-fixed text-sm">
                             <thead>
                                 <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                                     <th className="w-[15%] text-left px-4 py-3 font-medium">Destination</th>
-                                    <th className="w-[16%] text-left px-4 py-3 font-medium">Vehicle</th>
-                                    <th className="w-[11%] text-left px-4 py-3 font-medium">Start Date</th>
-                                    <th className="w-[7%] text-left px-4 py-3 font-medium">Days</th>
-                                    <th className="w-[12%] text-left px-4 py-3 font-medium">Total (RWF)</th>
-                                    <th className="w-[13%] text-left px-4 py-3 font-medium">Status</th>
-                                    <th className="w-[13%] text-left px-4 py-3 font-medium">Driver</th>
-                                    <th className="w-[13%] text-left px-4 py-3 font-medium">Actions</th>
+                                    <th className="w-[15%] text-left px-4 py-3 font-medium">Vehicle</th>
+                                    <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Start Date</th>
+                                    <th className="w-[6%] text-left px-4 py-3 font-medium">Days</th>
+                                    <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Total (RWF)</th>
+                                    <th className="w-[12%] text-left px-4 py-3 font-medium">Status</th>
+                                    <th className="w-[12%] text-left px-4 py-3 font-medium">Driver</th>
+                                    <th className="w-[16%] text-left px-4 py-3 font-medium">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -189,17 +189,17 @@ export default function Bookings() {
             {/**Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] table-fixed text-sm">
+                <table className="w-full min-w-[800px] table-fixed text-sm">
                     <thead>
                         <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                             <th className="w-[15%] text-left px-4 py-3 font-medium">Destination</th>
-                            <th className="w-[16%] text-left px-4 py-3 font-medium">Vehicle</th>
-                            <th className="w-[11%] text-left px-4 py-3 font-medium">Start Date</th>
-                            <th className="w-[7%] text-left px-4 py-3 font-medium">Days</th>
-                            <th className="w-[12%] text-left px-4 py-3 font-medium">Total (RWF)</th>
-                            <th className="w-[13%] text-left px-4 py-3 font-medium">Status</th>
-                            <th className="w-[13%] text-left px-4 py-3 font-medium">Driver</th>
-                            <th className="w-[13%] text-left px-4 py-3 font-medium">Actions</th>
+                            <th className="w-[15%] text-left px-4 py-3 font-medium">Vehicle</th>
+                            <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Start Date</th>
+                            <th className="w-[6%] text-left px-4 py-3 font-medium">Days</th>
+                            <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Total (RWF)</th>
+                            <th className="w-[12%] text-left px-4 py-3 font-medium">Status</th>
+                            <th className="w-[12%] text-left px-4 py-3 font-medium">Driver</th>
+                            <th className="w-[16%] text-left px-4 py-3 font-medium">Actions</th>
                         </tr>
                     </thead>
 
@@ -219,10 +219,10 @@ export default function Bookings() {
                                 >
                                     <td className="px-4 py-3">{booking.destination_name}</td>
                                     <td className="px-4 py-3">{booking.vehicle_type}</td>
-                                    <td className="px-4 py-3">{booking.start_date}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap">{booking.start_date}</td>
                                     <td className="px-4 py-3">{booking.num_days}</td>
 
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 whitespace-nowrap">
                                         {booking.total_price?.toLocaleString()}
                                     </td>
 
@@ -259,7 +259,7 @@ export default function Bookings() {
                                         onClick={() => setAssigningId(
                                             assigningId === booking.booking_id ? null : booking.booking_id
                                         )}
-                                        className="w-full text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
+                                        className="w-full whitespace-nowrap text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
                                         style={{ backgroundColor: '#15435B' }}
                                         >
                                         {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
