@@ -193,13 +193,13 @@ export default function Bookings() {
                     <thead>
                         <tr style={{ backgroundColor: '#15435B' }} className="text-white">
                             <th className="w-[15%] text-left px-4 py-3 font-medium">Destination</th>
-                            <th className="w-[15%] text-left px-4 py-3 font-medium">Vehicle</th>
+                            <th className="w-[18%] text-left px-4 py-3 font-medium">Vehicle</th>
                             <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Start Date</th>
                             <th className="w-[6%] text-left px-4 py-3 font-medium">Days</th>
                             <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Total (RWF)</th>
                             <th className="w-[12%] text-left px-4 py-3 font-medium">Status</th>
                             <th className="w-[12%] text-left px-4 py-3 font-medium">Driver</th>
-                            <th className="w-[16%] text-left px-4 py-3 font-medium">Actions</th>
+                            <th className="w-[15%] text-left px-4 py-3 font-medium">Actions</th>
                         </tr>
                     </thead>
 
