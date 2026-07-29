@@ -3,6 +3,7 @@ import { getAvailableDrivers } from "../services/api"
 import API from "../services/api"
 import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
+import Pagination from "../components/Pagination"
 
 const STATUS_COLORS = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -428,60 +429,14 @@ export default function Bookings() {
             </div>
 
             {/** Pagination */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
-                <p className="text-xs text-gray-400">
-                    Showing {((currentPage - 1) * LIMIT) + 1}-{Math.min(currentPage * LIMIT, total)} of {total} bookings
-                </p>
-
-                <div className="flex items-center gap-2">
-                    <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="text-xs px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
-                    >
-                    Previous
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page =>
-                        page === 1 ||
-                        page === totalPages ||
-                        Math.abs(page - currentPage) <= 1
-                    )
-                    .reduce((acc, page, idx, arr) => {
-                        if (idx > 0 && page - arr[idx - 1] > 1) {
-                        acc.push('...')
-                        }
-                        acc.push(page)
-                        return acc
-                    }, [])
-                    .map((page, idx) =>
-                        page === '...' ? (
-                        <span key={`ellipsis-${idx}`} className="text-xs text-gray-400 px-1">...</span>
-                        ) : (
-                        <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`text-xs px-3 py-1.5 rounded border transition-colors ${
-                            currentPage === page
-                                ? 'text-white border-transparent'
-                                : 'border-gray-200 hover:bg-gray-50'
-                            }`}
-                            style={currentPage === page ? { backgroundColor: '#15435B' } : {}}
-                        >
-                            {page}
-                        </button>
-                        )
-                    )
-                    }
-                    <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="text-xs px-3 py-1.5 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
-                    >
-                    Next
-                    </button>
-                </div>
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                total={total}
+                limit={LIMIT}
+                onPageChange={setCurrentPage}
+                itemLabel="bookings"
+            />
         </>
     )
 }
