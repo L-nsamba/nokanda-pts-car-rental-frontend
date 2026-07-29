@@ -3,6 +3,8 @@ import { getDrivers } from "../services/api"
 import API from "../services/api"
 import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
+import StatusBadge from "../components/StatusBadge"
+import Modal from "../components/Modal"
 
 const STATUS_COLORS = {
   AVAILABLE: 'bg-green-100 text-green-700',
@@ -239,9 +241,7 @@ useEffect(() => {
                         <td className="px-4 py-3 font-medium">{driver.name}</td>
                         <td className="px-4 py-3 text-gray-500">{driver.driver_capabilities}</td>
                         <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[driver.availability_status]}`}>
-                            {STATUS_LABELS[driver.availability_status]}
-                        </span>
+                        <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} />
                         </td>
                         <td className="px-4 py-3 text-gray-500">
                         {driver.completed_trips}
@@ -274,9 +274,7 @@ useEffect(() => {
                         <div key={driver.user_id} className="bg-white rounded-lg shadow-sm p-4">
                             <div className="flex items-start justify-between gap-3 mb-3">
                                 <p className="font-medium text-sm truncate">{driver.name}</p>
-                                <span className={`text-xs px-2 py-1 rounded font-medium flex-shrink-0 ${STATUS_COLORS[driver.availability_status]}`}>
-                                    {STATUS_LABELS[driver.availability_status]}
-                                </span>
+                                <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} className="flex-shrink-0" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-2 text-xs mb-3">
@@ -308,68 +306,46 @@ useEffect(() => {
 
             {/**Edit Modal */}
             {editingDriver && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-80 max-w-[90vw] shadow-xl">
+                <Modal
+                    onClose={() => setEditingDriver(null)}
+                    title="Edit Driver"
+                    subtitle={editingDriver.name}
+                    onConfirm={handleEditSave}
+                    confirmDisabled={saving}
+                    confirmLabel={saving ? 'Saving...' : 'Save'}
+                    widthClass="w-80"
+                >
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Status
+                        </label>
+                        <select
+                        value={editForm.availability_status}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, availability_status: e.target.value}))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
 
-                        <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B'}}>
-                            Edit Driver
-                        </h2>
-                        <p className="text-sm text-gray-400 mb-5">{editingDriver.name}</p>
-
-                        <div className="flex flex-col gap-4">
-                            <div>
-                                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
-                                    Status
-                                </label>
-                                <select
-                                value={editForm.availability_status}
-                                onChange={(e) => setEditForm(prev => ({ ...prev, availability_status: e.target.value}))}
-                                className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
-
-                                <option value="AVAILABLE">Available</option>
-                                <option value="TRAVELLING">Booked</option>
-                                <option value="UNAVAILABLE">Unavailable</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
-                                    Capabilities
-                                </label>
-
-                                <select
-                                value={editForm.driver_capabilities}
-                                onChange={(e) => setEditForm(prev => ({ ...prev, driver_capabilities: e.target.value }))}
-                                className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
-                                >
-                                <option value="MANUAL">Manual</option>
-                                <option value="AUTOMATIC">Automatic</option>
-                                <option value="BOTH">Both</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3 mt-6">
-                            <button
-                            onClick={() => setEditingDriver(null)}
-                            className="flex-1 py-2 rounded text-sm border-gray-200 text-gray-500 hover:bg-gray-50">
-                                Cancel
-                            </button>
-
-                            <button
-                            onClick={handleEditSave}
-                            disabled={saving}
-                            className="flex-1 py-2 rounded text-sm text-white disabled:opacity-50"
-                            style={{ backgroundColor: '#15435B' }}
-                        >
-                            {saving ? 'Saving...' : 'Save'}
-                        </button>
-
-                        </div>
-
+                        <option value="AVAILABLE">Available</option>
+                        <option value="TRAVELLING">Booked</option>
+                        <option value="UNAVAILABLE">Unavailable</option>
+                        </select>
                     </div>
 
-                </div>
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Capabilities
+                        </label>
+
+                        <select
+                        value={editForm.driver_capabilities}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, driver_capabilities: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        >
+                        <option value="MANUAL">Manual</option>
+                        <option value="AUTOMATIC">Automatic</option>
+                        <option value="BOTH">Both</option>
+                        </select>
+                    </div>
+                </Modal>
             )}
         </>
     )

@@ -4,6 +4,7 @@ import API from "../services/api"
 import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
+import StatusBadge from "../components/StatusBadge"
 
 const STATUS_COLORS = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -250,9 +251,11 @@ export default function Bookings() {
 
                                     <td className="px-4 py-3">
                                         {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
-                                        <span className={`text-xs px-2 py-1 rounded font-medium ${STATUS_COLORS[booking.status]}`}>
-                                            {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
-                                        </span>
+                                        <StatusBadge
+                                            status={booking.status}
+                                            colorMap={STATUS_COLORS}
+                                            label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                                        />
                                         ) : (
                                         <select
                                         value={booking.status}
@@ -346,9 +349,12 @@ export default function Bookings() {
                                 </div>
 
                                 {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
-                                <span className={`text-xs px-2 py-1 rounded font-medium flex-shrink-0 ${STATUS_COLORS[booking.status]}`}>
-                                    {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
-                                </span>
+                                <StatusBadge
+                                    status={booking.status}
+                                    colorMap={STATUS_COLORS}
+                                    label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                                    className="flex-shrink-0"
+                                />
                                 ) : (
                                 <select
                                 value={booking.status}
