@@ -5,6 +5,8 @@ import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import StatusBadge from "../components/StatusBadge"
 import Modal from "../components/Modal"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
 const STATUS_COLORS = {
   AVAILABLE: 'bg-green-100 text-green-700',
@@ -29,6 +31,15 @@ export default function Drivers() {
     const [editingDriver, setEditingDriver] = useState(null)
     const [editForm, setEditForm] = useState({availability_status: '', driver_capabilities: ''})
     const [saving, setSaving] = useState(false)
+    const [showCreateModal, setShowCreateModal] = useState(false)
+    const [createForm, setCreateForm] = useState({
+        user_name: '',
+        email: '',
+        password: '',
+        phone_number: '',
+        driver_capabilities: 'MANUAL'
+    })
+    const [creating, setCreating] = useState(false)
 
 
 useEffect(() => {
@@ -71,6 +82,24 @@ useEffect(() => {
                 showToast(err.response?.data?.detail || 'Failed to update driver')
             } finally {
                 setSaving(false)
+        }
+    }
+
+    const emptyCreateForm = { user_name: '', email: '', password: '', phone_number: '', driver_capabilities: 'MANUAL' }
+
+    const handleCreateSave = async () => {
+        if (!createForm.user_name || !createForm.email || !createForm.password || !createForm.phone_number) return
+        setCreating(true)
+        try {
+            const res = await API.post('/drivers/onboard', createForm)
+            setDrivers(prev => [res.data, ...prev])
+            setShowCreateModal(false)
+            setCreateForm(emptyCreateForm)
+        } catch (err) {
+            console.error('Failed to add driver', err)
+            showToast(err.response?.data?.detail || 'Failed to add driver')
+        } finally {
+            setCreating(false)
         }
     }
 
@@ -160,13 +189,24 @@ useEffect(() => {
     return (
         <>
             {/**Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                    Drivers Overview
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Manage driver profiles and availability
-                </p>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
+                        Drivers Overview
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Manage driver profiles and availability
+                    </p>
+                </div>
+
+                <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
+                style={{ backgroundColor: '#15435B' }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                    Add Driver
+                </button>
             </div>
 
             {/**Summary stat cards */}
@@ -338,6 +378,84 @@ useEffect(() => {
                         <select
                         value={editForm.driver_capabilities}
                         onChange={(e) => setEditForm(prev => ({ ...prev, driver_capabilities: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        >
+                        <option value="MANUAL">Manual</option>
+                        <option value="AUTOMATIC">Automatic</option>
+                        <option value="BOTH">Both</option>
+                        </select>
+                    </div>
+                </Modal>
+            )}
+
+            {/**Add Driver Modal */}
+            {showCreateModal && (
+                <Modal
+                    onClose={() => {
+                        setShowCreateModal(false)
+                        setCreateForm(emptyCreateForm)
+                    }}
+                    title="Add Driver"
+                    subtitle="New drivers start out Available"
+                    onConfirm={handleCreateSave}
+                    confirmDisabled={creating || !createForm.user_name || !createForm.email || !createForm.password || !createForm.phone_number}
+                    confirmLabel={creating ? 'Adding...' : 'Add Driver'}
+                >
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                        Full Name
+                        </label>
+                        <input
+                        type="text"
+                        value={createForm.user_name}
+                        onChange={(e) => setCreateForm(prev => ({ ...prev, user_name: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                        Email
+                        </label>
+                        <input
+                        type="email"
+                        value={createForm.email}
+                        onChange={(e) => setCreateForm(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                        Password
+                        </label>
+                        <input
+                        type="password"
+                        value={createForm.password}
+                        onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                        Phone Number
+                        </label>
+                        <input
+                        type="text"
+                        value={createForm.phone_number}
+                        onChange={(e) => setCreateForm(prev => ({ ...prev, phone_number: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                        Capabilities
+                        </label>
+                        <select
+                        value={createForm.driver_capabilities}
+                        onChange={(e) => setCreateForm(prev => ({ ...prev, driver_capabilities: e.target.value }))}
                         className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]"
                         >
                         <option value="MANUAL">Manual</option>
