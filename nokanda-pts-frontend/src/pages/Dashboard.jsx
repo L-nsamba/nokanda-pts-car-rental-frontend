@@ -42,6 +42,8 @@ import { Doughnut, Bar, Line} from 'react-chartjs-2'
 import StatCard from "../components/StatCard"
 import Skeleton from "../components/Skeleton"
 import PageHeader from "../components/PageHeader"
+import ChartCard from "../components/ChartCard"
+import ChartCardSkeleton from "../components/ChartCardSkeleton"
 import { getStats, getBookings } from "../services/api"
 
 // Shortens "(N SEATS)" to "(N)" so long bus names fit on the chart's axis — the tooltip still
@@ -194,10 +196,7 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="bg-white rounded-lg p-5 shadow-sm">
-                            <Skeleton className="h-3 w-32 mx-auto mb-4" />
-                            <Skeleton className="h-56 w-full" />
-                        </div>
+                        <ChartCardSkeleton key={i} />
                     ))}
                 </div>
             </>
@@ -221,10 +220,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 {/**Booking status (donut chart) */}
-                <div className="bg-white rounded-lg p-5 shadow-sm">
-                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B'}}>
-                        STATUS BREAKDOWN
-                    </h2>
+                <ChartCard title="STATUS BREAKDOWN">
                     <div className="flex justify-center">
                         <div className="w-full max-w-xs h-56">
                             <Doughnut
@@ -244,37 +240,28 @@ export default function Dashboard() {
                             </Doughnut>
                         </div>
                     </div>
-                </div>
+                </ChartCard>
 
                 {/**Popular destinations */}
-                <div className="bg-white rounded-lg p-5 shadow-sm">
-                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                        POPULAR DESTINATIONS
-                    </h2>
+                <ChartCard title="POPULAR DESTINATIONS">
                     <div className="h-56">
                         <Bar data={destinationBarData} options={chartOptions}></Bar>
                     </div>
-                </div>
+                </ChartCard>
 
                 {/**Most used vehicle types */}
-                <div className="bg-white rounded-lg p-5 shadow-sm">
-                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                        MOST USED VEHICLES
-                    </h2>
+                <ChartCard title="MOST USED VEHICLES">
                     <div className="h-56">
                         <Bar data={vehicleBarData} options={vehicleChartOptions}></Bar>
                     </div>
-                </div>
+                </ChartCard>
 
                 {/**Booking trend over time */}
-                <div className="bg-white rounded-lg p-5 shadow-sm">
-                    <h2 className="text-xs text-center font-semibold mb-4" style={{ color: '#15435B' }}>
-                        BOOKING TREND
-                    </h2>
+                <ChartCard title="BOOKING TREND">
                     <div className="h-56">
                         <Line data={trendLineData} options={chartOptions}></Line>
                     </div>
-                </div>
+                </ChartCard>
             </div>
         </>
     )

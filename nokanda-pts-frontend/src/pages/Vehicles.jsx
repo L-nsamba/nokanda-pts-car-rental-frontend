@@ -11,6 +11,7 @@ import PageHeader from "../components/PageHeader"
 import SearchInput from "../components/SearchInput"
 import FilterSelect from "../components/FilterSelect"
 import StatTile from "../components/StatTile"
+import CardList from "../components/CardList"
 
 import {
   faCar,
@@ -235,77 +236,73 @@ export default function Vehicles() {
             </div>
 
             {/** Vehicle grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredVehicles.length === 0 ? (
-                    <div className="col-span-full text-center py-8 text-gray-400">
-                        No vehicles found
-                    </div>
+            <CardList
+                data={filteredVehicles}
+                emptyMessage="No vehicles found"
+                wrapperClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                emptyClassName="col-span-full text-center py-8 text-gray-400"
+                renderCard={(vehicle) => (
+                    <div
+                    key={vehicle.vehicle_id}
+                    className="bg-white rounded-lg shadow-sm overflow-hidden">
 
-                ):(
-                    filteredVehicles.map(vehicle => (
-                        <div
-                        key={vehicle.vehicle_id}
-                        className="bg-white rounded-lg shadow-sm overflow-hidden">
-
-                            {/**Vehicle image */}
-                            <div className="h-40 bg-gray-100 overflow-hidden">
-                                {vehicle.photo_url ? (
-                                    <img
-                                    src={vehicle.photo_url}
-                                    alt={vehicle.vehicle_type}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.target.style.display = 'none'
-                                    }}>
-                                    </img>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl" >
-                                        <FontAwesomeIcon icon={faCar}></FontAwesomeIcon>
-                                    </div>
-                                )}
-
-                            </div>
-
-                            {/**Vehicle info */}
-                            <div className="p-4">
-                                <div className="flex items-start justify-between mb-1">
-                                    <h3 className="font-semibold text-sm" style={{ color: '#15435B'}}>
-                                        {vehicle.vehicle_type}
-                                    </h3>
-                                    <StatusBadge status={vehicle.status} colorMap={STATUS_COLORS} size="sm" />
+                        {/**Vehicle image */}
+                        <div className="h-40 bg-gray-100 overflow-hidden">
+                            {vehicle.photo_url ? (
+                                <img
+                                src={vehicle.photo_url}
+                                alt={vehicle.vehicle_type}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.target.style.display = 'none'
+                                }}>
+                                </img>
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl" >
+                                    <FontAwesomeIcon icon={faCar}></FontAwesomeIcon>
                                 </div>
-                                <p className="text-xs text-gray-500 line-clamp-2 mb-4">
-                                    {vehicle.description}
-                                </p>
-
-                                {/** Actions */}
-                                <div className="flex gap-2">
-                                    <button
-                                    onClick={() => handleEditClick(vehicle)}
-                                    className="flex-1 text-xs py-1.5 rounded text-white hover:opacity-80 transition-opacity"
-                                    style={{ backgroundColor: '#15435B'}}>
-
-                                    Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleStatusToggle(vehicle)}
-                                        className={`flex-1 text-xs py-1.5 rounded font-medium transition-opacity hover:opacity-80 ${
-                                            vehicle.status === 'AVAILABLE'
-                                            ? 'bg-red-100 text-red-600'
-                                            : 'bg-green-100 text-green-600'
-                                        }`}
-                                        >
-                                        {vehicle.status === 'AVAILABLE' ? 'Mark Unavailable' : 'Mark Available'}
-                                    </button>
-
-                                </div>
-                            </div>
+                            )}
 
                         </div>
-                    ))
-                )}
 
-            </div>
+                        {/**Vehicle info */}
+                        <div className="p-4">
+                            <div className="flex items-start justify-between mb-1">
+                                <h3 className="font-semibold text-sm" style={{ color: '#15435B'}}>
+                                    {vehicle.vehicle_type}
+                                </h3>
+                                <StatusBadge status={vehicle.status} colorMap={STATUS_COLORS} size="sm" />
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-4">
+                                {vehicle.description}
+                            </p>
+
+                            {/** Actions */}
+                            <div className="flex gap-2">
+                                <button
+                                onClick={() => handleEditClick(vehicle)}
+                                className="flex-1 text-xs py-1.5 rounded text-white hover:opacity-80 transition-opacity"
+                                style={{ backgroundColor: '#15435B'}}>
+
+                                Edit
+                                </button>
+                                <button
+                                    onClick={() => handleStatusToggle(vehicle)}
+                                    className={`flex-1 text-xs py-1.5 rounded font-medium transition-opacity hover:opacity-80 ${
+                                        vehicle.status === 'AVAILABLE'
+                                        ? 'bg-red-100 text-red-600'
+                                        : 'bg-green-100 text-green-600'
+                                    }`}
+                                    >
+                                    {vehicle.status === 'AVAILABLE' ? 'Mark Unavailable' : 'Mark Available'}
+                                </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+                )}
+            />
             <p className="text-xs text-gray-400 mt-4">
                 Showing {filteredVehicles.length} of {vehicles.length} vehicles
             </p>
