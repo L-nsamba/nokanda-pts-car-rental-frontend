@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import StatusBadge from "../components/StatusBadge"
+import FilterBarSkeleton from "../components/FilterBarSkeleton"
 
 const STATUS_COLORS = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -115,10 +116,7 @@ export default function Bookings() {
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                    <Skeleton className="h-9 w-full sm:w-72" />
-                    <Skeleton className="h-9 w-full sm:w-40" />
-                </div>
+                <FilterBarSkeleton filterCount={1} />
 
                 <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">

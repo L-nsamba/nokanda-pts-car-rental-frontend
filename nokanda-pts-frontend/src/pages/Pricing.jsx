@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import API from "../services/api"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
+import FilterBarSkeleton from "../components/FilterBarSkeleton"
 
 const VEHICLE_TYPES = [
   'BMW/LC 300', 'V8', 'TXL PRADO', 'TOYOTA RAV4',
@@ -108,11 +109,7 @@ export default function Pricing(){
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                    <Skeleton className="h-9 w-full sm:w-72" />
-                    <Skeleton className="h-9 w-full sm:w-40" />
-                    <Skeleton className="h-9 w-full sm:w-40" />
-                </div>
+                <FilterBarSkeleton filterCount={2} />
 
                 <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
