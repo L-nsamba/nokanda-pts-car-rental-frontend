@@ -5,6 +5,8 @@ import Pagination from "../components/Pagination"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
+import SearchInput from "../components/SearchInput"
+import FilterSelect from "../components/FilterSelect"
 
 const VEHICLE_TYPES = [
   'BMW/LC 300', 'V8', 'TXL PRADO', 'TOYOTA RAV4',
@@ -210,41 +212,31 @@ export default function Pricing(){
 
             {/** Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <input
-                type="text"
-                placeholder="Search destination or vehicle type..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-72 outline-none focus:border-[#15435B]">
-                </input>
+                <SearchInput
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder="Search destination or vehicle type..."
+                />
 
-                <select
-                value={destinationFilter}
-                onChange={(e) => {
-                    setDestinationFilter(e.target.value)
-                    setCurrentPage(1)
-                }}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-                    <option value="">All Destinations</option>
-                    {DESTINATION_NAMES.map(name => (
-                        <option key={name} value={name}>{name}</option>
-                    ))}
+                <FilterSelect
+                    value={destinationFilter}
+                    onChange={(e) => {
+                        setDestinationFilter(e.target.value)
+                        setCurrentPage(1)
+                    }}
+                    allLabel="All Destinations"
+                    options={DESTINATION_NAMES}
+                />
 
-                </select>
-
-                <select
-                value={vehicleTypeFilter}
-                onChange={(e) => {
-                    setVehicleTypeFilter(e.target.value)
-                    setCurrentPage(1)
-                }}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-                    <option value="">All Vehicle Types</option>
-                    {VEHICLE_TYPES.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-
-                </select>
+                <FilterSelect
+                    value={vehicleTypeFilter}
+                    onChange={(e) => {
+                        setVehicleTypeFilter(e.target.value)
+                        setCurrentPage(1)
+                    }}
+                    allLabel="All Vehicle Types"
+                    options={VEHICLE_TYPES}
+                />
             </div>
 
             {/* Table (medium screens and up) */}

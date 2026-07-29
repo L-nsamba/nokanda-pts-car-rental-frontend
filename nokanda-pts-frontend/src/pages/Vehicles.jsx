@@ -7,6 +7,9 @@ import StatusBadge from "../components/StatusBadge"
 import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import StatTileSkeleton from "../components/StatTileSkeleton"
+import SearchInput from "../components/SearchInput"
+import FilterSelect from "../components/FilterSelect"
+import StatTile from "../components/StatTile"
 
 import {
   faCar
@@ -202,52 +205,43 @@ export default function Vehicles() {
 
             {/** Stat cards */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Available</p>
-                    <p className="text-2xl font-bold mt-1" style={{ color: '#15435B' }}>
-                    {vehicles.filter(v => v.status === 'AVAILABLE').length}
-                    </p>
-                </div>
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Unavailable</p>
-                    <p className="text-2xl font-bold mt-1 text-red-500">
-                    {vehicles.filter(v => v.status === 'UNAVAILABLE').length}
-                    </p>
-                </div>
+                <StatTile
+                    label="Available"
+                    value={vehicles.filter(v => v.status === 'AVAILABLE').length}
+                    valueStyle={{ color: '#15435B' }}
+                />
+                <StatTile
+                    label="Unavailable"
+                    value={vehicles.filter(v => v.status === 'UNAVAILABLE').length}
+                    valueClassName="text-red-500"
+                />
             </div>
 
             {/** Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <SearchInput
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search by type...."
+                    widthClass="sm:w-64"
+                />
 
-                <input
-                type="text"
-                placeholder="Search by type...."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-[#15435B]">
-                </input>
+                <FilterSelect
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    allLabel="All Statuses"
+                    options={[
+                        { value: 'AVAILABLE', label: 'Available' },
+                        { value: 'UNAVAILABLE', label: 'Unavailable' },
+                    ]}
+                />
 
-                <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-
-                    <option value="">All Statues</option>
-                    <option value="AVAILABLE">Available</option>
-                    <option value="UNAVAILABLE">Unavailable</option>
-
-                </select>
-
-                <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-
-                    <option value="">All Types</option>
-                    {VEHICLE_TYPES.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
+                <FilterSelect
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    allLabel="All Types"
+                    options={VEHICLE_TYPES}
+                />
             </div>
 
             {/** Vehicle grid */}

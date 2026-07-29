@@ -9,6 +9,9 @@ import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import StatTileSkeleton from "../components/StatTileSkeleton"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
+import SearchInput from "../components/SearchInput"
+import FilterSelect from "../components/FilterSelect"
+import StatTile from "../components/StatTile"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
@@ -250,44 +253,45 @@ useEffect(() => {
             {/**Summary stat cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {['AVAILABLE', 'TRAVELLING', 'UNAVAILABLE'].map(status => (
-                    <div key={status} className="bg-white rounded-lg p-4 shadow-sm">
-                        <p className="text-xs text-gray-400 uppercase tracking-wide">{STATUS_LABELS[status]}</p>
-                        <p className="text-2xl font-bold mt-1" style={{ color: '#15435B'}}>
-                            {drivers.filter(d => d.availability_status === status).length}
-                        </p>
-                    </div>
+                    <StatTile
+                        key={status}
+                        label={STATUS_LABELS[status]}
+                        value={drivers.filter(d => d.availability_status === status).length}
+                        valueStyle={{ color: '#15435B' }}
+                    />
                 ))}
             </div>
 
             {/**Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <input
-                type="text"
-                placeholder="Search by name..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-[#15435B]">
-                </input>
+                <SearchInput
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search by name..."
+                    widthClass="sm:w-64"
+                />
 
-                <select
+                <FilterSelect
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-                    <option value="">All Statuses</option>
-                    <option value="AVAILABLE">Available</option>
-                    <option value="TRAVELLING">Booked</option>
-                    <option value="UNAVAILABLE">Unavailable</option>
-                </select>
+                    allLabel="All Statuses"
+                    options={[
+                        { value: 'AVAILABLE', label: 'Available' },
+                        { value: 'TRAVELLING', label: 'Booked' },
+                        { value: 'UNAVAILABLE', label: 'Unavailable' },
+                    ]}
+                />
 
-                <select
+                <FilterSelect
                     value={capabilityFilter}
                     onChange={(e) => setCapabilityFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full sm:w-auto">
-                    <option value="">All Capabilities</option>
-                    <option value="MANUAL">Manual</option>
-                    <option value="AUTOMATIC">Automatic</option>
-                    <option value="BOTH">Both</option>
-                </select>
+                    allLabel="All Capabilities"
+                    options={[
+                        { value: 'MANUAL', label: 'Manual' },
+                        { value: 'AUTOMATIC', label: 'Automatic' },
+                        { value: 'BOTH', label: 'Both' },
+                    ]}
+                />
             </div>
 
             {/* Table (medium screens and up) */}

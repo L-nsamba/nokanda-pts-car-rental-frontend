@@ -8,6 +8,8 @@ import StatusBadge from "../components/StatusBadge"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
+import SearchInput from "../components/SearchInput"
+import FilterSelect from "../components/FilterSelect"
 
 const STATUS_COLORS = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -305,25 +307,22 @@ export default function Bookings() {
 
             {/**Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <input
-                type="text"
-                placeholder="Search destination, vehicle, driver..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-2 text-sm w-full sm:w-72 outline-none focus:border-[#15435B]">
-                </input>
-                <select
+                <SearchInput
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search destination, vehicle, driver..."
+                />
+                <FilterSelect
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B] w-full sm:w-auto"
-                >
-                    <option value="">All Statuses</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="CONFIRMED">Confirmed</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED">Cancelled</option>
-
-                </select>
+                    allLabel="All Statuses"
+                    options={[
+                        { value: 'PENDING', label: 'Pending' },
+                        { value: 'CONFIRMED', label: 'Confirmed' },
+                        { value: 'COMPLETED', label: 'Completed' },
+                        { value: 'CANCELLED', label: 'Cancelled' },
+                    ]}
+                />
             </div>
 
             {/**Table (medium screens and up) */}
