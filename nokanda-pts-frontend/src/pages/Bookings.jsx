@@ -5,7 +5,7 @@ import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 
 const STATUS_COLORS = {
-  PENDING: 'bg-yellow-100 text-yellow-700',
+  PENDING: 'bg-amber-100 text-amber-700',
   CONFIRMED: 'bg-blue-100 text-blue-700',
   COMPLETED: 'bg-green-100 text-green-700',
   CANCELLED: 'bg-red-100 text-red-700',
@@ -268,7 +268,7 @@ export default function Bookings() {
 
                                     <td className="px-4 py-3 text-gray-500">
                                         {booking.driver_name || (
-                                        <span className="text-yellow-500 text-xs">Unassigned</span>
+                                        <span className="text-amber-500 text-xs">Unassigned</span>
                                         )}
                                     </td>
 

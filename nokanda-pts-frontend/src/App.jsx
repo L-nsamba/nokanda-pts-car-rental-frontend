@@ -2,6 +2,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import { ToastProvider } from './context/ToastContext'
+import { NotificationsProvider } from './context/NotificationsContext'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Bookings from './pages/Bookings'
@@ -20,7 +21,9 @@ function App() {
 
           <Route element={
             <ProtectedRoute>
-              <Layout/>
+              <NotificationsProvider>
+                <Layout/>
+              </NotificationsProvider>
             </ProtectedRoute>}>
 
             <Route path="/dashboard" element={<Dashboard/>}></Route>

@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ptsLogo from '../assets/pts-logo.png'
+import { useNotifications } from "../context/NotificationsContext"
 
 import {
   faGauge,
@@ -25,6 +26,7 @@ const navItems = [
 
 export default function Sidebar({ isOpen, onClose })  {
     const navigate = useNavigate()
+    const { unreadCount } = useNotifications()
 
     const handleLogout = () => {
         localStorage.removeItem('token')
@@ -62,7 +64,14 @@ export default function Sidebar({ isOpen, onClose })  {
                     }`
                     }
                 >
-                    <span><FontAwesomeIcon icon={item.icon} /></span>
+                    <span className="relative">
+                        <FontAwesomeIcon icon={item.icon} />
+                        {item.path === '/notifications' && unreadCount > 0 && (
+                            <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-[3px] rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </span>
                     {item.label}
                 </NavLink>
                 ))}
