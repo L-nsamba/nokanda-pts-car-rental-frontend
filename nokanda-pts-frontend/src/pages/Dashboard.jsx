@@ -43,6 +43,10 @@ import StatCard from "../components/StatCard"
 import Skeleton from "../components/Skeleton"
 import { getStats, getBookings } from "../services/api"
 
+// Shortens "(N SEATS)" to "(N)" so long bus names fit on the chart's axis — the tooltip still
+// shows the full, untouched label on hover, so no information is actually lost.
+const abbreviateVehicleLabel = (label) => label.replace(/\s*SEATS\)/i, ')')
+
 export default function Dashboard() {
     const [stats, setStats] = useState(null)
     const [bookings, setBookings] = useState([])
@@ -159,7 +163,14 @@ export default function Dashboard() {
         plugins: { legend: { display: false } },
         scales: {
             x: { grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
-            y: { grid: { display: false } }
+            y: {
+                grid: { display: false },
+                ticks: {
+                    callback: function (value) {
+                        return abbreviateVehicleLabel(this.getLabelForValue(value))
+                    }
+                }
+            }
         }
     }
 

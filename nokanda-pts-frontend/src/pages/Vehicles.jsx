@@ -12,8 +12,8 @@ import FilterSelect from "../components/FilterSelect"
 import StatTile from "../components/StatTile"
 
 import {
-  faCar
-
+  faCar,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -196,9 +196,10 @@ export default function Vehicles() {
 
                 <button
                 onClick={() => setShowCreateModal(true)}
-                className="text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
+                className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
                 style={{ backgroundColor: '#15435B' }}
                 >
+                    <FontAwesomeIcon icon={faPlus} />
                     Add Vehicle
                 </button>
             </div>
