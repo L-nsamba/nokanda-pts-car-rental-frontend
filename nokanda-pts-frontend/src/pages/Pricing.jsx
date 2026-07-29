@@ -113,7 +113,7 @@ export default function Pricing(){
                     <Skeleton className="h-9 w-full sm:w-40" />
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[560px] text-sm">
                             <thead>
@@ -137,6 +137,20 @@ export default function Pricing(){
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                {/** Mobile skeleton cards */}
+                <div className="md:hidden flex flex-col gap-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                                <Skeleton className="h-4 w-32 mb-2" />
+                                <Skeleton className="h-3 w-24 mb-2" />
+                                <Skeleton className="h-4 w-20" />
+                            </div>
+                            <Skeleton className="h-7 w-20 flex-shrink-0" />
+                        </div>
+                    ))}
                 </div>
             </>
         )
@@ -193,8 +207,8 @@ export default function Pricing(){
                 </select>
             </div>
 
-            {/* Table */}
-            <div className={`bg-white rounded-lg shadow-sm overflow-hidden transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
+            {/* Table (medium screens and up) */}
+            <div className={`hidden md:block bg-white rounded-lg shadow-sm overflow-hidden transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
             <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-sm">
                 <thead>
@@ -245,6 +259,39 @@ export default function Pricing(){
                 </tbody>
             </table>
             </div>
+            </div>
+
+            {/* Cards (below medium screens) */}
+            <div className={`md:hidden flex flex-col gap-3 transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
+                {pricing.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-400">
+                        No pricing records found
+                    </div>
+                ) : (
+                    pricing.map(price => (
+                        <div key={price.pricing_id} className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="font-medium text-sm truncate" style={{ color: '#15435B' }}>
+                                    {price.destination_name || price.destination_id}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">{price.vehicle_type}</p>
+                                <p className="text-sm font-semibold mt-1" style={{ color: '#15435B' }}>
+                                    {price.unit_price?.toLocaleString()} RWF
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => {
+                                setEditingPrice(price)
+                                setNewPrice(price.unit_price.toString())
+                                }}
+                                className="text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity flex-shrink-0"
+                                style={{ backgroundColor: '#15435B' }}
+                            >
+                                Edit Price
+                            </button>
+                        </div>
+                    ))
+                )}
             </div>
 
             {/** Pagination */}

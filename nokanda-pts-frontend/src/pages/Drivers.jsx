@@ -108,7 +108,7 @@ useEffect(() => {
                     <Skeleton className="h-9 w-full sm:w-40" />
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[640px] text-sm">
                             <thead>
@@ -133,6 +133,23 @@ useEffect(() => {
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                {/** Mobile skeleton cards */}
+                <div className="md:hidden flex flex-col gap-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg shadow-sm p-4">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                                <Skeleton className="h-4 w-28" />
+                                <Skeleton className="h-6 w-16 flex-shrink-0" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mb-3">
+                                <Skeleton className="h-3 w-full" />
+                                <Skeleton className="h-3 w-full" />
+                            </div>
+                            <Skeleton className="h-8 w-full" />
+                        </div>
+                    ))}
                 </div>
             </>
         )
@@ -193,8 +210,8 @@ useEffect(() => {
                 </select>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            {/* Table (medium screens and up) */}
+            <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
                 <thead>
@@ -244,6 +261,45 @@ useEffect(() => {
                 </tbody>
             </table>
             </div>
+            </div>
+
+            {/** Cards (below medium screens) */}
+            <div className="md:hidden flex flex-col gap-3">
+                {filteredDrivers.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-400">
+                        No drivers found
+                    </div>
+                ) : (
+                    filteredDrivers.map(driver => (
+                        <div key={driver.user_id} className="bg-white rounded-lg shadow-sm p-4">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                                <p className="font-medium text-sm truncate">{driver.name}</p>
+                                <span className={`text-xs px-2 py-1 rounded font-medium flex-shrink-0 ${STATUS_COLORS[driver.availability_status]}`}>
+                                    {STATUS_LABELS[driver.availability_status]}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                                <div>
+                                    <span className="block text-gray-400">Capabilities</span>
+                                    <span className="text-gray-600">{driver.driver_capabilities}</span>
+                                </div>
+                                <div>
+                                    <span className="block text-gray-400">Completed Trips</span>
+                                    <span className="text-gray-600">{driver.completed_trips}</span>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => handleEditClick(driver)}
+                                className="w-full text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity"
+                                style={{ backgroundColor: '#15435B' }}
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    ))
+                )}
             </div>
 
             <p className="text-xs  text-gray-400 mt-4">
