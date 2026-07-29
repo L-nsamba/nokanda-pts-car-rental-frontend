@@ -7,6 +7,8 @@ import StatusBadge from "../components/StatusBadge"
 import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import StatTileSkeleton from "../components/StatTileSkeleton"
+import DataTable from "../components/DataTable"
+import CardList from "../components/CardList"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
@@ -113,6 +115,47 @@ useEffect(() => {
             : true
             return matchesStatus && matchesCapability && matchesSearch
     })
+
+    const driverColumns = [
+        {
+            key: 'name',
+            header: 'Name',
+            cellClassName: 'font-medium',
+            render: (driver) => driver.name,
+        },
+        {
+            key: 'capabilities',
+            header: 'Capabilities',
+            cellClassName: 'text-gray-500',
+            render: (driver) => driver.driver_capabilities,
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (driver) => (
+                <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} />
+            ),
+        },
+        {
+            key: 'completed_trips',
+            header: 'Completed Trips',
+            cellClassName: 'text-gray-500',
+            render: (driver) => driver.completed_trips,
+        },
+        {
+            key: 'actions',
+            header: 'Actions',
+            render: (driver) => (
+                <button
+                    onClick={() => handleEditClick(driver)}
+                    className="text-xs px-3 py-1 rounded text-white hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: '#15435B' }}
+                >
+                    Edit
+                </button>
+            ),
+        },
+    ]
 
     if (loading) {
         return (
@@ -248,92 +291,46 @@ useEffect(() => {
             </div>
 
             {/* Table (medium screens and up) */}
-            <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
-                    <th className="text-left px-4 py-3 font-medium">Name</th>
-                    <th className="text-left px-4 py-3 font-medium">Capabilities</th>
-                    <th className="text-left px-4 py-3 font-medium">Status</th>
-                    <th className="text-left px-4 py-3 font-medium">Completed Trips</th>
-                    <th className="text-left px-4 py-3 font-medium">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {filteredDrivers.length === 0 ? (
-                    <tr>
-                    <td colSpan={5} className="text-center py-8 text-gray-400">
-                        No drivers found
-                    </td>
-                    </tr>
-                ) : (
-                    filteredDrivers.map((driver, index) => (
-                    <tr
-                        key={driver.user_id}
-                        className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                    >
-                        <td className="px-4 py-3 font-medium">{driver.name}</td>
-                        <td className="px-4 py-3 text-gray-500">{driver.driver_capabilities}</td>
-                        <td className="px-4 py-3">
-                        <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} />
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">
-                        {driver.completed_trips}
-                        </td>
-                        <td className="px-4 py-3">
+            <DataTable
+                columns={driverColumns}
+                data={filteredDrivers}
+                getRowKey={(driver) => driver.user_id}
+                emptyMessage="No drivers found"
+                minWidthClass="min-w-[640px]"
+            />
+
+            {/** Cards (below medium screens) */}
+            <CardList
+                data={filteredDrivers}
+                emptyMessage="No drivers found"
+                renderCard={(driver) => (
+                    <div key={driver.user_id} className="bg-white rounded-lg shadow-sm p-4">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                            <p className="font-medium text-sm truncate">{driver.name}</p>
+                            <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} className="flex-shrink-0" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                            <div>
+                                <span className="block text-gray-400">Capabilities</span>
+                                <span className="text-gray-600">{driver.driver_capabilities}</span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-400">Completed Trips</span>
+                                <span className="text-gray-600">{driver.completed_trips}</span>
+                            </div>
+                        </div>
+
                         <button
                             onClick={() => handleEditClick(driver)}
-                            className="text-xs px-3 py-1 rounded text-white hover:opacity-80 transition-opacity"
+                            className="w-full text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity"
                             style={{ backgroundColor: '#15435B' }}
                         >
                             Edit
                         </button>
-                        </td>
-                    </tr>
-                    ))
-                )}
-                </tbody>
-            </table>
-            </div>
-            </div>
-
-            {/** Cards (below medium screens) */}
-            <div className="md:hidden flex flex-col gap-3">
-                {filteredDrivers.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-400">
-                        No drivers found
                     </div>
-                ) : (
-                    filteredDrivers.map(driver => (
-                        <div key={driver.user_id} className="bg-white rounded-lg shadow-sm p-4">
-                            <div className="flex items-start justify-between gap-3 mb-3">
-                                <p className="font-medium text-sm truncate">{driver.name}</p>
-                                <StatusBadge status={driver.availability_status} colorMap={STATUS_COLORS} label={STATUS_LABELS[driver.availability_status]} className="flex-shrink-0" />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                                <div>
-                                    <span className="block text-gray-400">Capabilities</span>
-                                    <span className="text-gray-600">{driver.driver_capabilities}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-400">Completed Trips</span>
-                                    <span className="text-gray-600">{driver.completed_trips}</span>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => handleEditClick(driver)}
-                                className="w-full text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity"
-                                style={{ backgroundColor: '#15435B' }}
-                            >
-                                Edit
-                            </button>
-                        </div>
-                    ))
                 )}
-            </div>
+            />
 
             <p className="text-xs  text-gray-400 mt-4">
                 Showing {filteredDrivers.length} of {drivers.length} drivers

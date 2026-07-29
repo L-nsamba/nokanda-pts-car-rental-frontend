@@ -3,6 +3,8 @@ import API from "../services/api"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
+import DataTable from "../components/DataTable"
+import CardList from "../components/CardList"
 
 const VEHICLE_TYPES = [
   'BMW/LC 300', 'V8', 'TXL PRADO', 'TOYOTA RAV4',
@@ -96,6 +98,46 @@ export default function Pricing(){
     }
 
     const totalPages = Math.ceil(total / LIMIT)
+
+    const priceColumns = [
+        {
+            key: 'destination',
+            header: 'Destination',
+            cellClassName: 'text-gray-600',
+            render: (price) => price.destination_name || price.destination_id,
+        },
+        {
+            key: 'vehicle_type',
+            header: 'Vehicle Type',
+            cellClassName: 'text-gray-600',
+            render: (price) => price.vehicle_type,
+        },
+        {
+            key: 'unit_price',
+            header: 'Unit Price (RWF)',
+            render: (price) => (
+                <span className="font-medium" style={{ color: '#15435B' }}>
+                    {price.unit_price?.toLocaleString()}
+                </span>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'Actions',
+            render: (price) => (
+                <button
+                    onClick={() => {
+                        setEditingPrice(price)
+                        setNewPrice(price.unit_price.toString())
+                    }}
+                    className="text-xs px-3 py-1 rounded text-white hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: '#15435B' }}
+                >
+                    Edit Price
+                </button>
+            ),
+        },
+    ]
 
     if (loading) {
         return (
@@ -206,91 +248,44 @@ export default function Pricing(){
             </div>
 
             {/* Table (medium screens and up) */}
-            <div className={`hidden md:block bg-white rounded-lg shadow-sm overflow-hidden transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
-            <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-sm">
-                <thead>
-                <tr style={{ backgroundColor: '#15435B' }} className="text-white">
-                    <th className="text-left px-4 py-3 font-medium">Destination</th>
-                    <th className="text-left px-4 py-3 font-medium">Vehicle Type</th>
-                    <th className="text-left px-4 py-3 font-medium">Unit Price (RWF)</th>
-                    <th className="text-left px-4 py-3 font-medium">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {pricing.length === 0 ? (
-                    <tr>
-                    <td colSpan={4} className="text-center py-8 text-gray-400">
-                        No pricing records found
-                    </td>
-                    </tr>
-                ) : (
-                    pricing.map((price, index) => (
-                    <tr
-                        key={price.pricing_id}
-                        className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                    >
-                        <td className="px-4 py-3 text-gray-600">
-                        {price.destination_name || price.destination_id}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                        {price.vehicle_type}
-                        </td>
-                        <td className="px-4 py-3 font-medium" style={{ color: '#15435B' }}>
-                        {price.unit_price?.toLocaleString()}
-                        </td>
-                        <td className="px-4 py-3">
+            <DataTable
+                columns={priceColumns}
+                data={pricing}
+                getRowKey={(price) => price.pricing_id}
+                emptyMessage="No pricing records found"
+                minWidthClass="min-w-[560px]"
+                className={refreshing ? 'opacity-60' : ''}
+            />
+
+            {/* Cards (below medium screens) */}
+            <CardList
+                data={pricing}
+                emptyMessage="No pricing records found"
+                className={refreshing ? 'opacity-60' : ''}
+                renderCard={(price) => (
+                    <div key={price.pricing_id} className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="font-medium text-sm truncate" style={{ color: '#15435B' }}>
+                                {price.destination_name || price.destination_id}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">{price.vehicle_type}</p>
+                            <p className="text-sm font-semibold mt-1" style={{ color: '#15435B' }}>
+                                {price.unit_price?.toLocaleString()} RWF
+                            </p>
+                        </div>
                         <button
                             onClick={() => {
                             setEditingPrice(price)
                             setNewPrice(price.unit_price.toString())
                             }}
-                            className="text-xs px-3 py-1 rounded text-white hover:opacity-80 transition-opacity"
+                            className="text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity flex-shrink-0"
                             style={{ backgroundColor: '#15435B' }}
                         >
                             Edit Price
                         </button>
-                        </td>
-                    </tr>
-                    ))
-                )}
-                </tbody>
-            </table>
-            </div>
-            </div>
-
-            {/* Cards (below medium screens) */}
-            <div className={`md:hidden flex flex-col gap-3 transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
-                {pricing.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-400">
-                        No pricing records found
                     </div>
-                ) : (
-                    pricing.map(price => (
-                        <div key={price.pricing_id} className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
-                            <div className="min-w-0">
-                                <p className="font-medium text-sm truncate" style={{ color: '#15435B' }}>
-                                    {price.destination_name || price.destination_id}
-                                </p>
-                                <p className="text-xs text-gray-500 truncate">{price.vehicle_type}</p>
-                                <p className="text-sm font-semibold mt-1" style={{ color: '#15435B' }}>
-                                    {price.unit_price?.toLocaleString()} RWF
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => {
-                                setEditingPrice(price)
-                                setNewPrice(price.unit_price.toString())
-                                }}
-                                className="text-xs px-3 py-1.5 rounded text-white hover:opacity-80 transition-opacity flex-shrink-0"
-                                style={{ backgroundColor: '#15435B' }}
-                            >
-                                Edit Price
-                            </button>
-                        </div>
-                    ))
                 )}
-            </div>
+            />
 
             {/** Pagination */}
             <Pagination

@@ -6,6 +6,8 @@ import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import StatusBadge from "../components/StatusBadge"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
+import DataTable from "../components/DataTable"
+import CardList from "../components/CardList"
 
 const STATUS_COLORS = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -103,6 +105,123 @@ export default function Bookings() {
     })
 
     const totalPages = Math.ceil(total / LIMIT)
+
+    const bookingColumns = [
+        {
+            key: 'destination',
+            header: 'Destination',
+            headerClassName: 'w-[15%]',
+            render: (booking) => booking.destination_name,
+        },
+        {
+            key: 'vehicle',
+            header: 'Vehicle',
+            headerClassName: 'w-[18%]',
+            render: (booking) => booking.vehicle_type,
+        },
+        {
+            key: 'start_date',
+            header: 'Start Date',
+            headerClassName: 'w-[12%] whitespace-nowrap',
+            cellClassName: 'whitespace-nowrap',
+            render: (booking) => booking.start_date,
+        },
+        {
+            key: 'days',
+            header: 'Days',
+            headerClassName: 'w-[6%]',
+            render: (booking) => booking.num_days,
+        },
+        {
+            key: 'total',
+            header: 'Total (RWF)',
+            headerClassName: 'w-[12%] whitespace-nowrap',
+            cellClassName: 'whitespace-nowrap',
+            render: (booking) => booking.total_price?.toLocaleString(),
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            headerClassName: 'w-[12%]',
+            render: (booking) => (
+                booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
+                <StatusBadge
+                    status={booking.status}
+                    colorMap={STATUS_COLORS}
+                    label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                />
+                ) : (
+                <select
+                value={booking.status}
+                onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
+                className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer ${STATUS_COLORS[booking.status]}`}
+                >
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+                </select>
+                )
+            ),
+        },
+        {
+            key: 'driver',
+            header: 'Driver',
+            headerClassName: 'w-[12%]',
+            cellClassName: 'text-gray-500',
+            render: (booking) => booking.driver_name || (
+                <span className="text-amber-500 text-xs">Unassigned</span>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'Actions',
+            headerClassName: 'w-[15%]',
+            render: (booking) => (
+                booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
+                <span className="text-xs text-gray-300">—</span>
+                ) : (
+                <button
+                onClick={() => setAssigningId(
+                    assigningId === booking.booking_id ? null : booking.booking_id
+                )}
+                className="w-full whitespace-nowrap text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
+                style={{ backgroundColor: '#15435B' }}
+                >
+                {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
+                </button>
+                )
+            ),
+        },
+    ]
+
+    const renderAssignPanel = (booking) => (
+        assigningId === booking.booking_id ? (
+            <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-500">Select driver:</span>
+                <select
+                value={selectedDriver}
+                onChange={(e) => setSelectedDriver(e.target.value)}
+                className="border border-gray-200 rounded px-3 py-1 text-sm outline-none"
+                >
+                <option value="">Choose a driver</option>
+                {drivers.map(driver => (
+                    <option key={driver.user_id} value={driver.user_id}>
+                    {driver.name} — {driver.driver_capabilities}
+                    </option>
+                ))}
+                </select>
+                <button
+                onClick={() => handleDriverAssign(booking.booking_id)}
+                disabled={!selectedDriver || updating}
+                className="text-xs px-3 py-1 rounded text-white disabled:opacity-50"
+                style={{ backgroundColor: '#15435B' }}
+                >
+                {updating ? 'Assigning...' : 'Confirm'}
+                </button>
+            </div>
+        ) : null
+    )
 
     if (loading) {
         return (
@@ -208,229 +327,114 @@ export default function Bookings() {
             </div>
 
             {/**Table (medium screens and up) */}
-            <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px] table-fixed text-sm">
-                    <thead>
-                        <tr style={{ backgroundColor: '#15435B' }} className="text-white">
-                            <th className="w-[15%] text-left px-4 py-3 font-medium">Destination</th>
-                            <th className="w-[18%] text-left px-4 py-3 font-medium">Vehicle</th>
-                            <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Start Date</th>
-                            <th className="w-[6%] text-left px-4 py-3 font-medium">Days</th>
-                            <th className="w-[12%] whitespace-nowrap text-left px-4 py-3 font-medium">Total (RWF)</th>
-                            <th className="w-[12%] text-left px-4 py-3 font-medium">Status</th>
-                            <th className="w-[12%] text-left px-4 py-3 font-medium">Driver</th>
-                            <th className="w-[15%] text-left px-4 py-3 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {filteredBookings.length === 0 ? (
-                            <tr>
-                               <td colSpan={8} className="text-center py-8 text-gray-400">
-                                    No bookings found
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredBookings.map((booking, index) => (
-                                <>
-                                <tr
-                                key={booking.booking_id}
-                                className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                                >
-                                    <td className="px-4 py-3">{booking.destination_name}</td>
-                                    <td className="px-4 py-3">{booking.vehicle_type}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap">{booking.start_date}</td>
-                                    <td className="px-4 py-3">{booking.num_days}</td>
-
-                                    <td className="px-4 py-3 whitespace-nowrap">
-                                        {booking.total_price?.toLocaleString()}
-                                    </td>
-
-                                    <td className="px-4 py-3">
-                                        {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
-                                        <StatusBadge
-                                            status={booking.status}
-                                            colorMap={STATUS_COLORS}
-                                            label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
-                                        />
-                                        ) : (
-                                        <select
-                                        value={booking.status}
-                                        onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
-                                        className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer ${STATUS_COLORS[booking.status]}`}
-                                        >
-                                        <option value="PENDING">Pending</option>
-                                        <option value="CONFIRMED">Confirmed</option>
-                                        <option value="COMPLETED">Completed</option>
-                                        <option value="CANCELLED">Cancelled</option>
-                                        </select>
-                                        )}
-                                    </td>
-
-                                    <td className="px-4 py-3 text-gray-500">
-                                        {booking.driver_name || (
-                                        <span className="text-amber-500 text-xs">Unassigned</span>
-                                        )}
-                                    </td>
-
-                                    <td className="px-4 py-3">
-                                        {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
-                                        <span className="text-xs text-gray-300">—</span>
-                                        ) : (
-                                        <button
-                                        onClick={() => setAssigningId(
-                                            assigningId === booking.booking_id ? null : booking.booking_id
-                                        )}
-                                        className="w-full whitespace-nowrap text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
-                                        style={{ backgroundColor: '#15435B' }}
-                                        >
-                                        {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
-                                        </button>
-                                        )}
-                                    </td>
-                                </tr>
-
-                                {/**Driver assignment dropdown row */}
-                                {assigningId === booking.booking_id && (
-                                    <tr key={`assign-${booking.booking_id}`} className="bg-blue-50">
-                                    <td colSpan={8} className="px-4 py-3">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-xs text-gray-500">Select driver:</span>
-                                        <select
-                                        value={selectedDriver}
-                                        onChange={(e) => setSelectedDriver(e.target.value)}
-                                        className="border border-gray-200 rounded px-3 py-1 text-sm outline-none"
-                                        >
-                                        <option value="">Choose a driver</option>
-                                        {drivers.map(driver => (
-                                            <option key={driver.user_id} value={driver.user_id}>
-                                            {driver.name} — {driver.driver_capabilities}
-                                            </option>
-                                        ))}
-                                        </select>
-                                        <button
-                                        onClick={() => handleDriverAssign(booking.booking_id)}
-                                        disabled={!selectedDriver || updating}
-                                        className="text-xs px-3 py-1 rounded text-white disabled:opacity-50"
-                                        style={{ backgroundColor: '#15435B' }}
-                                        >
-                                        {updating ? 'Assigning...' : 'Confirm'}
-                                        </button>
-                                    </div>
-                                    </td>
-                                </tr>
-                                )}
-                            </>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-              </div>
-            </div>
+            <DataTable
+                columns={bookingColumns}
+                data={filteredBookings}
+                getRowKey={(booking) => booking.booking_id}
+                emptyMessage="No bookings found"
+                minWidthClass="min-w-[800px]"
+                tableClassName="table-fixed"
+                renderExpanded={renderAssignPanel}
+            />
 
             {/**Cards (below medium screens) */}
-            <div className="md:hidden flex flex-col gap-3">
-                {filteredBookings.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-400">
-                        No bookings found
-                    </div>
-                ) : (
-                    filteredBookings.map(booking => (
-                        <div key={booking.booking_id} className="bg-white rounded-lg shadow-sm p-4">
-                            <div className="flex items-start justify-between gap-3 mb-3">
-                                <div className="min-w-0">
-                                    <p className="font-medium text-sm truncate" style={{ color: '#15435B' }}>
-                                        {booking.destination_name}
-                                    </p>
-                                    <p className="text-xs text-gray-500 truncate">{booking.vehicle_type}</p>
-                                </div>
-
-                                {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
-                                <StatusBadge
-                                    status={booking.status}
-                                    colorMap={STATUS_COLORS}
-                                    label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
-                                    className="flex-shrink-0"
-                                />
-                                ) : (
-                                <select
-                                value={booking.status}
-                                onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
-                                className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer flex-shrink-0 ${STATUS_COLORS[booking.status]}`}
-                                >
-                                <option value="PENDING">Pending</option>
-                                <option value="CONFIRMED">Confirmed</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="CANCELLED">Cancelled</option>
-                                </select>
-                                )}
+            <CardList
+                data={filteredBookings}
+                emptyMessage="No bookings found"
+                renderCard={(booking) => (
+                    <div key={booking.booking_id} className="bg-white rounded-lg shadow-sm p-4">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="min-w-0">
+                                <p className="font-medium text-sm truncate" style={{ color: '#15435B' }}>
+                                    {booking.destination_name}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">{booking.vehicle_type}</p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                                <div>
-                                    <span className="block text-gray-400">Start Date</span>
-                                    <span className="text-gray-600">{booking.start_date}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-400">Days</span>
-                                    <span className="text-gray-600">{booking.num_days}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-400">Total (RWF)</span>
-                                    <span className="font-medium" style={{ color: '#15435B' }}>
-                                        {booking.total_price?.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-400">Driver</span>
-                                    {booking.driver_name || (
-                                    <span className="text-yellow-500">Unassigned</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {booking.status !== 'COMPLETED' && booking.status !== 'CANCELLED' && (
-                                <button
-                                onClick={() => setAssigningId(
-                                    assigningId === booking.booking_id ? null : booking.booking_id
-                                )}
-                                className="w-full text-xs px-3 py-1.5 rounded text-white transition-opacity hover:opacity-80"
-                                style={{ backgroundColor: '#15435B' }}
-                                >
-                                {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
-                                </button>
-                            )}
-
-                            {assigningId === booking.booking_id && (
-                                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2">
-                                    <span className="text-xs text-gray-500">Select driver:</span>
-                                    <select
-                                    value={selectedDriver}
-                                    onChange={(e) => setSelectedDriver(e.target.value)}
-                                    className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full"
-                                    >
-                                    <option value="">Choose a driver</option>
-                                    {drivers.map(driver => (
-                                        <option key={driver.user_id} value={driver.user_id}>
-                                        {driver.name} — {driver.driver_capabilities}
-                                        </option>
-                                    ))}
-                                    </select>
-                                    <button
-                                    onClick={() => handleDriverAssign(booking.booking_id)}
-                                    disabled={!selectedDriver || updating}
-                                    className="w-full text-xs px-3 py-2 rounded text-white disabled:opacity-50"
-                                    style={{ backgroundColor: '#15435B' }}
-                                    >
-                                    {updating ? 'Assigning...' : 'Confirm'}
-                                    </button>
-                                </div>
+                            {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
+                            <StatusBadge
+                                status={booking.status}
+                                colorMap={STATUS_COLORS}
+                                label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
+                                className="flex-shrink-0"
+                            />
+                            ) : (
+                            <select
+                            value={booking.status}
+                            onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
+                            className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer flex-shrink-0 ${STATUS_COLORS[booking.status]}`}
+                            >
+                            <option value="PENDING">Pending</option>
+                            <option value="CONFIRMED">Confirmed</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                            </select>
                             )}
                         </div>
-                    ))
+
+                        <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                            <div>
+                                <span className="block text-gray-400">Start Date</span>
+                                <span className="text-gray-600">{booking.start_date}</span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-400">Days</span>
+                                <span className="text-gray-600">{booking.num_days}</span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-400">Total (RWF)</span>
+                                <span className="font-medium" style={{ color: '#15435B' }}>
+                                    {booking.total_price?.toLocaleString()}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-400">Driver</span>
+                                {booking.driver_name || (
+                                <span className="text-yellow-500">Unassigned</span>
+                                )}
+                            </div>
+                        </div>
+
+                        {booking.status !== 'COMPLETED' && booking.status !== 'CANCELLED' && (
+                            <button
+                            onClick={() => setAssigningId(
+                                assigningId === booking.booking_id ? null : booking.booking_id
+                            )}
+                            className="w-full text-xs px-3 py-1.5 rounded text-white transition-opacity hover:opacity-80"
+                            style={{ backgroundColor: '#15435B' }}
+                            >
+                            {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
+                            </button>
+                        )}
+
+                        {assigningId === booking.booking_id && (
+                            <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2">
+                                <span className="text-xs text-gray-500">Select driver:</span>
+                                <select
+                                value={selectedDriver}
+                                onChange={(e) => setSelectedDriver(e.target.value)}
+                                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full"
+                                >
+                                <option value="">Choose a driver</option>
+                                {drivers.map(driver => (
+                                    <option key={driver.user_id} value={driver.user_id}>
+                                    {driver.name} — {driver.driver_capabilities}
+                                    </option>
+                                ))}
+                                </select>
+                                <button
+                                onClick={() => handleDriverAssign(booking.booking_id)}
+                                disabled={!selectedDriver || updating}
+                                className="w-full text-xs px-3 py-2 rounded text-white disabled:opacity-50"
+                                style={{ backgroundColor: '#15435B' }}
+                                >
+                                {updating ? 'Assigning...' : 'Confirm'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 )}
-            </div>
+            />
 
             {/** Pagination */}
             <Pagination
