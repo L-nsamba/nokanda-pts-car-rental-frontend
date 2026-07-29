@@ -3,12 +3,20 @@ import { timeAgo } from "../utils/timeAgo";
 import { useNotifications } from "../context/NotificationsContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faHourglassHalf,
   faArrowsRotate,
-  faUser,
-  faMoneyBill
 } from "@fortawesome/free-solid-svg-icons";
 import Skeleton from "../components/Skeleton";
+import PageHeader from "../components/PageHeader";
+import FilterTabs from "../components/FilterTabs";
+import CardList from "../components/CardList";
+
+const FILTER_OPTIONS = [
+    { label: 'All', value: '' },
+    { label: 'New Bookings', value: 'NEW_BOOKING' },
+    { label: 'Status Updates', value: 'STATUS_UPDATE' },
+    { label: 'Driver Assigned', value: 'DRIVER_ASSIGNED' },
+    { label: 'Price Updates', value: 'PRICE_UPDATE' },
+]
 
 // How long a newly-loaded notification stays visually "unread" before it's marked seen
 const MARK_READ_DELAY = 3000
@@ -31,52 +39,23 @@ export default function Notifications() {
     return (
         <>
             {/**Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Notifications Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                    {lastUpdated
-                        ? `Last updated ${timeAgo(lastUpdated)}`
-                        : 'Loading...'}
-                    </p>
-                </div>
-
-                {/** Manual refresh */}
-                <button
-                    onClick={refresh}
-                    className="flex items-center justify-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
-                    style={{ backgroundColor: '#15435B' }}
-                >
-                    <FontAwesomeIcon icon={faArrowsRotate} />
-                    Refresh Now
-                </button>
-            </div>
+            <PageHeader
+                title="Notifications Overview"
+                subtitle={lastUpdated ? `Last updated ${timeAgo(lastUpdated)}` : 'Loading...'}
+                action={
+                    <button
+                        onClick={refresh}
+                        className="flex items-center justify-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity"
+                        style={{ backgroundColor: '#15435B' }}
+                    >
+                        <FontAwesomeIcon icon={faArrowsRotate} />
+                        Refresh Now
+                    </button>
+                }
+            />
 
             {/**Filter tabs */}
-            <div className="flex flex-wrap gap-2 mb-6">
-            {[
-                { label: 'All', value: '' },
-                { label: 'New Bookings', icon: <FontAwesomeIcon icon={faHourglassHalf}></FontAwesomeIcon>, value: 'NEW_BOOKING' },
-                { label: 'Status Updates', icon: <FontAwesomeIcon icon={faArrowsRotate}></FontAwesomeIcon>, value: 'STATUS_UPDATE' },
-                { label: 'Driver Assigned', icon: <FontAwesomeIcon icon={faUser}></FontAwesomeIcon>,value: 'DRIVER_ASSIGNED' },
-                { label: 'Price Updates', icon: <FontAwesomeIcon icon={faMoneyBill}></FontAwesomeIcon>, value: 'PRICE_UPDATE' },
-            ].map(tab => (
-                <button
-                key={tab.value}
-                onClick={() => setFilter(tab.value)}
-                className={`text-xs px-4 py-2 rounded transition-colors ${
-                    filter === tab.value
-                    ? 'text-white'
-                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-                style={filter === tab.value ? { backgroundColor: '#15435B' } : {}}
-                >
-                {tab.label}
-                </button>
-            ))}
-            </div>
+            <FilterTabs value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
             {/** Notification count */}
             <p className="text-xs text-gray-400 mb-4">
@@ -97,11 +76,13 @@ export default function Notifications() {
                         </div>
                     ))}
                 </div>
-            ) : filteredNotifications.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">No notifications</div>
             ) : (
-                <div className="flex flex-col gap-3">
-                    {filteredNotifications.map(notification => {
+                <CardList
+                    data={filteredNotifications}
+                    emptyMessage="No notifications"
+                    wrapperClassName="flex flex-col gap-3"
+                    emptyClassName="text-center py-8 text-gray-400"
+                    renderCard={(notification) => {
                         const isUnread = !readIds.has(notification.id)
                         return (
                         <div
@@ -137,9 +118,8 @@ export default function Notifications() {
                             </div>
                         </div>
                         )
-                    })}
-
-                </div>
+                    }}
+                />
             )}
         </>
     )
