@@ -6,6 +6,7 @@ import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import StatusBadge from "../components/StatusBadge"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
+import PageHeader from "../components/PageHeader"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
 import SearchInput from "../components/SearchInput"
@@ -228,14 +229,7 @@ export default function Bookings() {
     if (loading) {
         return (
             <>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Bookings Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage and assign drivers to bookings
-                    </p>
-                </div>
+                <PageHeader title="Bookings Overview" subtitle="Manage and assign drivers to bookings" />
 
                 <FilterBarSkeleton filterCount={1} />
 
@@ -296,14 +290,7 @@ export default function Bookings() {
     return (
         <>
             {/**Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                    Bookings Overview
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Manage and assign drivers to bookings
-                </p>
-            </div>
+            <PageHeader title="Bookings Overview" subtitle="Manage and assign drivers to bookings" />
 
             {/**Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">

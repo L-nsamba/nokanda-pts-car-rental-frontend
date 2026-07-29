@@ -7,6 +7,7 @@ import StatusBadge from "../components/StatusBadge"
 import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import StatTileSkeleton from "../components/StatTileSkeleton"
+import PageHeader from "../components/PageHeader"
 import SearchInput from "../components/SearchInput"
 import FilterSelect from "../components/FilterSelect"
 import StatTile from "../components/StatTile"
@@ -141,14 +142,7 @@ export default function Vehicles() {
     if (loading) {
         return (
             <>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Vehicle Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage vehicle details and availability
-                    </p>
-                </div>
+                <PageHeader title="Vehicle Overview" subtitle="Manage vehicle details and availability" />
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     {Array.from({ length: 2 }).map((_, i) => (
@@ -184,25 +178,20 @@ export default function Vehicles() {
     return (
         <>
             {/**Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Vehicle Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage vehicle details and availability
-                    </p>
-                </div>
-
-                <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
-                style={{ backgroundColor: '#15435B' }}
-                >
-                    <FontAwesomeIcon icon={faPlus} />
-                    Add Vehicle
-                </button>
-            </div>
+            <PageHeader
+                title="Vehicle Overview"
+                subtitle="Manage vehicle details and availability"
+                action={
+                    <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: '#15435B' }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                        Add Vehicle
+                    </button>
+                }
+            />
 
             {/** Stat cards */}
             <div className="grid grid-cols-2 gap-4 mb-6">

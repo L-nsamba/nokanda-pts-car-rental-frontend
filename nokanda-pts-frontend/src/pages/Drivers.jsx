@@ -7,6 +7,7 @@ import StatusBadge from "../components/StatusBadge"
 import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import StatTileSkeleton from "../components/StatTileSkeleton"
+import PageHeader from "../components/PageHeader"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
 import SearchInput from "../components/SearchInput"
@@ -163,14 +164,7 @@ useEffect(() => {
     if (loading) {
         return (
             <>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Drivers Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage driver profiles and availability
-                    </p>
-                </div>
+                <PageHeader title="Drivers Overview" subtitle="Manage driver profiles and availability" />
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     {Array.from({ length: 3 }).map((_, i) => (
@@ -230,25 +224,20 @@ useEffect(() => {
     return (
         <>
             {/**Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Drivers Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage driver profiles and availability
-                    </p>
-                </div>
-
-                <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity self-start"
-                style={{ backgroundColor: '#15435B' }}
-                >
-                    <FontAwesomeIcon icon={faPlus} />
-                    Add Driver
-                </button>
-            </div>
+            <PageHeader
+                title="Drivers Overview"
+                subtitle="Manage driver profiles and availability"
+                action={
+                    <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="flex items-center gap-2 text-xs px-4 py-2 rounded text-white hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: '#15435B' }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                        Add Driver
+                    </button>
+                }
+            />
 
             {/**Summary stat cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

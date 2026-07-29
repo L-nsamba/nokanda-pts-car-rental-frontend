@@ -3,6 +3,7 @@ import API from "../services/api"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
+import PageHeader from "../components/PageHeader"
 import DataTable from "../components/DataTable"
 import CardList from "../components/CardList"
 import SearchInput from "../components/SearchInput"
@@ -144,14 +145,7 @@ export default function Pricing(){
     if (loading) {
         return (
             <>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                        Pricing Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Manage vehicle-destination pricing
-                    </p>
-                </div>
+                <PageHeader title="Pricing Overview" subtitle="Manage vehicle-destination pricing" />
 
                 <FilterBarSkeleton filterCount={2} />
 
@@ -201,14 +195,7 @@ export default function Pricing(){
     return (
         <>
             {/**Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#15435B'}}>
-                    Pricing Overview
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Manage vehicle-destination pricing
-                </p>
-            </div>
+            <PageHeader title="Pricing Overview" subtitle="Manage vehicle-destination pricing" />
 
             {/** Filters */}
             <div className="flex flex-col sm:flex-row gap-3 mb-6">

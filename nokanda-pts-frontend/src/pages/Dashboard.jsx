@@ -41,6 +41,7 @@ import {
 import { Doughnut, Bar, Line} from 'react-chartjs-2'
 import StatCard from "../components/StatCard"
 import Skeleton from "../components/Skeleton"
+import PageHeader from "../components/PageHeader"
 import { getStats, getBookings } from "../services/api"
 
 // Shortens "(N SEATS)" to "(N)" so long bus names fit on the chart's axis — the tooltip still
@@ -177,14 +178,7 @@ export default function Dashboard() {
     if (loading) {
         return (
             <>
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
-                        Dashboard Overview
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-1">
-                        Welcome back, Admin
-                    </p>
-                </div>
+                <PageHeader title="Dashboard Overview" subtitle="Welcome back, Admin" />
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -213,14 +207,7 @@ export default function Dashboard() {
     return (
         <>
             {/**Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{color: '#15435B'}}>
-                    Dashboard Overview
-                </h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    Welcome back, Admin
-                </p>
-            </div>
+            <PageHeader title="Dashboard Overview" subtitle="Welcome back, Admin" />
 
             {/**Stat cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
