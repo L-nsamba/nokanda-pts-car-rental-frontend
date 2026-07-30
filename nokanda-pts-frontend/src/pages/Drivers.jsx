@@ -85,6 +85,7 @@ useEffect(() => {
                     )
                 )
                 setEditingDriver(null)
+                showToast('Driver updated successfully', 'success')
             } catch(err) {
                 console.error('Failed to update driver', err)
                 showToast(err.response?.data?.detail || 'Failed to update driver')
@@ -103,6 +104,7 @@ useEffect(() => {
             setDrivers(prev => [res.data, ...prev])
             setShowCreateModal(false)
             setCreateForm(emptyCreateForm)
+            showToast('Driver added successfully', 'success')
         } catch (err) {
             console.error('Failed to add driver', err)
             showToast(err.response?.data?.detail || 'Failed to add driver')

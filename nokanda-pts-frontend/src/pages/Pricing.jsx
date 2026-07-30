@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import API from "../services/api"
+import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
@@ -27,6 +28,7 @@ const LIMIT = 10
 const SEARCH_DEBOUNCE_MS = 400
 
 export default function Pricing(){
+    const { showToast } = useToast()
     const [pricing, setPricing] =  useState([])
     const [total, setTotal] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
@@ -93,8 +95,10 @@ export default function Pricing(){
             )
             setEditingPrice(null)
             setNewPrice('')
+            showToast('Price updated successfully', 'success')
         } catch (err) {
             console.error('Failed to update price', err)
+            showToast(err.response?.data?.detail || 'Failed to update price')
         } finally {
             setSaving(false)
         }

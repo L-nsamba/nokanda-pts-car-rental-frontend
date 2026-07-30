@@ -90,6 +90,7 @@ export default function Vehicles() {
                 )
             )
             setEditingVehicle(null)
+            showToast('Vehicle updated successfully', 'success')
         } catch (err) {
             console.error('Failed to update vehicle', err)
             showToast(err.response?.data?.detail || 'Failed to update vehicle')
@@ -106,6 +107,7 @@ export default function Vehicles() {
             setVehicles(prev => [res.data, ...prev])
             setShowCreateModal(false)
             setCreateForm({ vehicle_type: VEHICLE_TYPES[0], photo_url: '', description: '' })
+            showToast('Vehicle added successfully', 'success')
         } catch (err) {
             console.error('Failed to create vehicle', err)
             showToast(err.response?.data?.detail || 'Failed to create vehicle')
