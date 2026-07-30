@@ -54,7 +54,7 @@ function generateNotifications(bookings, pricing) {
         // Status update notification (appears only after a notification is existing)
         if (timeDiff > 5000 && booking.status != 'PENDING') {
             notifications.push({
-            id: `updated-${booking.booking_id}`,
+            id: `updated-${booking.booking_id}-${booking.updated_at}`,
             type: 'STATUS_UPDATE',
             icon: STATUS_ICONS[booking.status],
             title: `Booking ${booking.status.toLowerCase()}`,
@@ -67,7 +67,7 @@ function generateNotifications(bookings, pricing) {
         // Driver assigned notification
         if (booking.driver_name && timeDiff > 5000) {
             notifications.push({
-            id: `driver-${booking.booking_id}`,
+            id: `driver-${booking.booking_id}-${booking.updated_at}`,
             type: 'DRIVER_ASSIGNED',
             icon: <FontAwesomeIcon icon={faCar} />,
             title: `Driver assigned`,
@@ -86,7 +86,7 @@ function generateNotifications(bookings, pricing) {
         // Price update notification (only once a seeded price has actually been edited)
         if (timeDiff > 5000) {
             notifications.push({
-            id: `price-${price.pricing_id}`,
+            id: `price-${price.pricing_id}-${price.updated_at}`,
             type: 'PRICE_UPDATE',
             icon: <FontAwesomeIcon icon={faMoneyBill} />,
             title: 'Price updated',

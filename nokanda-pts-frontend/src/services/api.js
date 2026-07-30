@@ -28,7 +28,9 @@ export const getBookings = () => API.get('/admin/bookings')
 export const getDrivers = () => API.get('/drivers')
 export const getAvailableDrivers = () => API.get('/drivers/available')
 export const getVehicles = () => API.get('/vehicles')
-export const getPricing = () => API.get('/pricing')
+// The backend defaults /pricing to limit=10, sorted alphabetically by destination — far too
+// narrow a window for callers (like notifications) that need the whole pricing catalog.
+export const getPricing = () => API.get('/pricing', { params: { limit: 1000 } })
 export const getDestinations = () => API.get('/destinations')
 
 export default API
