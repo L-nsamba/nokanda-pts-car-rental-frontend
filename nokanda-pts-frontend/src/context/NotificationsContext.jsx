@@ -13,11 +13,12 @@ import {
 const POLL_INTERVAL = 15000
 const READ_STORAGE_KEY = 'pts_read_notifications'
 
+// Same status -> color language as the Bookings status pills, so a glance at either page reads the same way
 const STATUS_ICONS = {
-    PENDING: <FontAwesomeIcon icon={faHourglassHalf}></FontAwesomeIcon>,
-    CONFIRMED: <FontAwesomeIcon icon={faCalendarCheck}></FontAwesomeIcon>,
-    COMPLETED: <FontAwesomeIcon icon={faClipboardCheck}></FontAwesomeIcon>,
-    CANCELLED: <FontAwesomeIcon icon={faCalendarXmark}></FontAwesomeIcon>,
+    PENDING: <FontAwesomeIcon icon={faHourglassHalf} className="text-amber-500" />,
+    CONFIRMED: <FontAwesomeIcon icon={faCalendarCheck} className="text-blue-500" />,
+    COMPLETED: <FontAwesomeIcon icon={faClipboardCheck} className="text-green-600" />,
+    CANCELLED: <FontAwesomeIcon icon={faCalendarXmark} className="text-red-500" />,
 }
 
 function loadReadIds() {
