@@ -3,6 +3,7 @@ import API from "../services/api"
 import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
+import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import PageHeader from "../components/PageHeader"
 import DataTable from "../components/DataTable"
@@ -282,57 +283,30 @@ export default function Pricing(){
 
             {/** Edit Price Modal */}
             {editingPrice && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-80 max-w-[90vw] shadow-xl">
-
-                        <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B'}}>
-                            Edit Price
-                        </h2>
-                        <p className="text-sm text-gray-400 mb-1">
-                            {editingPrice.destination_name || editingPrice.destination_id} 
-                        </p>
-                        <p className="text-xs text-gray-400 mb-5">
-                            {editingPrice.vehicle_type}
-                        </p>
-
-                        <div>
-                            <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
-                                Unit Price (RWF)
-                            </label>
-                            <input
-                            type="number"
-                            value={newPrice}
-                            onChange={(e) => setNewPrice(e.target.value)}
-                            className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
-                            </input>
-                        </div>
-
-                        <div className="flex gap-3 mt-6">
-                            <button
-                            onClick={() => {
-                                setEditingPrice(null)
-                                setNewPrice('')
-                            }}
-                            className="flex-1 py-2 rounded text-sm border-gray-200 text-gray-500 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                            onClick={handleEditSave}
-                            disabled={saving}
-                            className="flex-1 py-2 rounded text-sm text-white disabled:opacity-50"
-                            style={{ backgroundColor: '#15435B'}}
-                            >
-                                {saving ? 'Saving' : 'Save'}
-
-                            </button>
-
-                        </div>
-
+                <Modal
+                    onClose={() => {
+                        setEditingPrice(null)
+                        setNewPrice('')
+                    }}
+                    title="Edit Price"
+                    subtitle={`${editingPrice.destination_name || editingPrice.destination_id} — ${editingPrice.vehicle_type}`}
+                    onConfirm={handleEditSave}
+                    confirmDisabled={saving}
+                    confirmLabel={saving ? 'Saving...' : 'Save'}
+                    widthClass="w-80"
+                >
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Unit Price (RWF)
+                        </label>
+                        <input
+                        type="number"
+                        value={newPrice}
+                        onChange={(e) => setNewPrice(e.target.value)}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
+                        </input>
                     </div>
-
-                </div>
+                </Modal>
             )}
         </>
     )

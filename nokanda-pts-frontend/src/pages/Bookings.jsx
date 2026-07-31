@@ -31,6 +31,7 @@ export default function Bookings() {
     const [loading, setLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('')
     const [search, setSearch] = useState('')
+    const [sort, setSort] = useState('')
     const [editingBooking, setEditingBooking] = useState(null)
     const [editForm, setEditForm] = useState({ status: '', driver_id: '' })
     const [saving, setSaving] = useState(false)
@@ -39,7 +40,7 @@ export default function Bookings() {
         try {
             const skip = (currentPage - 1) * LIMIT
             const [bookingRes, countRes, driverRes] =  await Promise.all([
-                API.get('/bookings', { params: { skip, limit: LIMIT } }),
+                API.get('/bookings', { params: { skip, limit: LIMIT, sort: sort || undefined } }),
                 API.get('/bookings/count'),
                 getAvailableDrivers()
             ])
@@ -55,7 +56,7 @@ export default function Bookings() {
 
     useEffect(() => {
         fetchData()
-    }, [currentPage])
+    }, [currentPage, sort])
 
     const handleEditClick = (booking) => {
         setEditingBooking(booking)
@@ -197,7 +198,7 @@ export default function Bookings() {
             <>
                 <PageHeader title="Bookings Overview" subtitle="Manage and assign drivers to bookings" />
 
-                <FilterBarSkeleton filterCount={1} />
+                <FilterBarSkeleton filterCount={2} />
 
                 <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
@@ -274,6 +275,21 @@ export default function Bookings() {
                         { value: 'CONFIRMED', label: 'Confirmed' },
                         { value: 'COMPLETED', label: 'Completed' },
                         { value: 'CANCELLED', label: 'Cancelled' },
+                    ]}
+                />
+                <FilterSelect
+                    value={sort}
+                    onChange={(e) => { setSort(e.target.value); setCurrentPage(1) }}
+                    allLabel="Newest First"
+                    options={[
+                        { value: 'price_asc', label: 'Price: Low to High' },
+                        { value: 'price_desc', label: 'Price: High to Low' },
+                        { value: 'date_asc', label: 'Date: Earliest First' },
+                        { value: 'date_desc', label: 'Date: Latest First' },
+                        { value: 'days_asc', label: 'Days: Low to High' },
+                        { value: 'days_desc', label: 'Days: High to Low' },
+                        { value: 'destination_asc', label: 'Destination: A–Z' },
+                        { value: 'vehicle_asc', label: 'Vehicle: A–Z' },
                     ]}
                 />
             </div>
