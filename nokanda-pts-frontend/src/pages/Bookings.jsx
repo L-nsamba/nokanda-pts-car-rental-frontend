@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext"
 import Skeleton from "../components/Skeleton"
 import Pagination from "../components/Pagination"
 import StatusBadge from "../components/StatusBadge"
+import Modal from "../components/Modal"
 import FilterBarSkeleton from "../components/FilterBarSkeleton"
 import PageHeader from "../components/PageHeader"
 import DataTable from "../components/DataTable"
@@ -30,9 +31,9 @@ export default function Bookings() {
     const [loading, setLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('')
     const [search, setSearch] = useState('')
-    const [assigningId, setAssigningId] = useState(null)
-    const [selectedDriver, setSelectedDriver] = useState('')
-    const [updating, setUpdating] = useState(false)
+    const [editingBooking, setEditingBooking] = useState(null)
+    const [editForm, setEditForm] = useState({ status: '', driver_id: '' })
+    const [saving, setSaving] = useState(false)
 
     const fetchData = async () => {
         try {
@@ -56,44 +57,52 @@ export default function Bookings() {
         fetchData()
     }, [currentPage])
 
-    //Booking status updates//
-    const handleStatusUpdate =  async (bookingId, newStatus) => {
+    const handleEditClick = (booking) => {
+        setEditingBooking(booking)
+        // Driver select starts blank — the assignable list is AVAILABLE drivers only, so a booking's
+        // current (now TRAVELLING) driver never appears in it anyway; "Currently assigned" is shown separately.
+        setEditForm({ status: booking.status, driver_id: '' })
+    }
+
+    const handleEditSave = async () => {
+        setSaving(true)
         try {
-            await API.patch(`/bookings/${bookingId}/status-update`, {status: newStatus})
+            const statusChanged = editForm.status !== editingBooking.status
+            const driverChanged = !!editForm.driver_id
+
+            if (statusChanged) {
+                await API.patch(`/bookings/${editingBooking.booking_id}/status-update`, { status: editForm.status })
+            }
+            if (driverChanged) {
+                await API.patch(`/bookings/${editingBooking.booking_id}/assign-driver`, { driver_id: editForm.driver_id })
+            }
+
+            const assignedDriver = driverChanged ? drivers.find(d => d.user_id === editForm.driver_id) : null
             setBookings(prev =>
-                prev.map(b => b.booking_id === bookingId ? { ...b, status: newStatus} : b)
+                prev.map(b => b.booking_id === editingBooking.booking_id
+                    ? {
+                        ...b,
+                        ...(statusChanged ? { status: editForm.status } : {}),
+                        ...(driverChanged ? { driver_id: editForm.driver_id, driver_name: assignedDriver?.name || b.driver_name } : {}),
+                    }
+                    : b
+                )
             )
-            // Completing/cancelling frees the driver, refresh the available list
-            if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
+
+            // Refresh the available-drivers list if this freed a driver (status → terminal) or took one off the market (assignment)
+            const freedDriver = statusChanged && (editForm.status === 'COMPLETED' || editForm.status === 'CANCELLED')
+            if (freedDriver || driverChanged) {
                 const driverRes = await getAvailableDrivers()
                 setDrivers(driverRes.data)
             }
-        } catch (err) {
-            console.error('Failed to update status', err)
-            showToast(err.response?.data?.detail || 'Failed to update status')
-        }
-    }
 
-    //Driver assignment handling//
-    const handleDriverAssign = async (bookingId) => {
-        if (!selectedDriver) return
-        setUpdating(true)
-        try {
-            await API.patch(`/bookings/${bookingId}/assign-driver`, {driver_id: selectedDriver})
-            const driver = drivers.find(d => d.user_id === selectedDriver)
-            setBookings(prev =>
-                prev.map(b => b.booking_id === bookingId ? { ...b, driver_id: selectedDriver, driver_name: driver?.name || selectedDriver } : b)
-            )
-            setAssigningId(null)
-            setSelectedDriver('')
-            // Refresh available drivers now that this one (and any previous driver) changed status
-            const driverRes = await getAvailableDrivers()
-            setDrivers(driverRes.data)
+            setEditingBooking(null)
+            showToast('Booking updated successfully', 'success')
         } catch (err) {
-            console.error('Failed to assign driver', err)
-            showToast(err.response?.data?.detail || 'Failed to assign driver')
-        } finally{
-            setUpdating(false)
+            console.error('Failed to update booking', err)
+            showToast(err.response?.data?.detail || 'Failed to update booking')
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -147,24 +156,11 @@ export default function Bookings() {
             header: 'Status',
             headerClassName: 'w-[12%]',
             render: (booking) => (
-                booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
                 <StatusBadge
                     status={booking.status}
                     colorMap={STATUS_COLORS}
                     label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
                 />
-                ) : (
-                <select
-                value={booking.status}
-                onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
-                className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer ${STATUS_COLORS[booking.status]}`}
-                >
-                <option value="PENDING">Pending</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-                </select>
-                )
             ),
         },
         {
@@ -185,46 +181,16 @@ export default function Bookings() {
                 <span className="text-xs text-gray-300">—</span>
                 ) : (
                 <button
-                onClick={() => setAssigningId(
-                    assigningId === booking.booking_id ? null : booking.booking_id
-                )}
+                onClick={() => handleEditClick(booking)}
                 className="w-full whitespace-nowrap text-xs px-3 py-1 rounded text-white transition-opacity hover:opacity-80"
                 style={{ backgroundColor: '#15435B' }}
                 >
-                {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
+                Edit
                 </button>
                 )
             ),
         },
     ]
-
-    const renderAssignPanel = (booking) => (
-        assigningId === booking.booking_id ? (
-            <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">Select driver:</span>
-                <select
-                value={selectedDriver}
-                onChange={(e) => setSelectedDriver(e.target.value)}
-                className="border border-gray-200 rounded px-3 py-1 text-sm outline-none"
-                >
-                <option value="">Choose a driver</option>
-                {drivers.map(driver => (
-                    <option key={driver.user_id} value={driver.user_id}>
-                    {driver.name} — {driver.driver_capabilities}
-                    </option>
-                ))}
-                </select>
-                <button
-                onClick={() => handleDriverAssign(booking.booking_id)}
-                disabled={!selectedDriver || updating}
-                className="text-xs px-3 py-1 rounded text-white disabled:opacity-50"
-                style={{ backgroundColor: '#15435B' }}
-                >
-                {updating ? 'Assigning...' : 'Confirm'}
-                </button>
-            </div>
-        ) : null
-    )
 
     if (loading) {
         return (
@@ -320,7 +286,6 @@ export default function Bookings() {
                 emptyMessage="No bookings found"
                 minWidthClass="min-w-[800px]"
                 tableClassName="table-fixed"
-                renderExpanded={renderAssignPanel}
             />
 
             {/**Cards (below medium screens) */}
@@ -337,25 +302,12 @@ export default function Bookings() {
                                 <p className="text-xs text-gray-500 truncate">{booking.vehicle_type}</p>
                             </div>
 
-                            {booking.status === 'COMPLETED' || booking.status === 'CANCELLED' ? (
                             <StatusBadge
                                 status={booking.status}
                                 colorMap={STATUS_COLORS}
                                 label={booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
                                 className="flex-shrink-0"
                             />
-                            ) : (
-                            <select
-                            value={booking.status}
-                            onChange={(e) => handleStatusUpdate(booking.booking_id, e.target.value)}
-                            className={`text-xs px-2 py-1 rounded font-medium border-0 outline-none cursor-pointer flex-shrink-0 ${STATUS_COLORS[booking.status]}`}
-                            >
-                            <option value="PENDING">Pending</option>
-                            <option value="CONFIRMED">Confirmed</option>
-                            <option value="COMPLETED">Completed</option>
-                            <option value="CANCELLED">Cancelled</option>
-                            </select>
-                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-2 text-xs mb-3">
@@ -383,40 +335,12 @@ export default function Bookings() {
 
                         {booking.status !== 'COMPLETED' && booking.status !== 'CANCELLED' && (
                             <button
-                            onClick={() => setAssigningId(
-                                assigningId === booking.booking_id ? null : booking.booking_id
-                            )}
+                            onClick={() => handleEditClick(booking)}
                             className="w-full text-xs px-3 py-1.5 rounded text-white transition-opacity hover:opacity-80"
                             style={{ backgroundColor: '#15435B' }}
                             >
-                            {assigningId === booking.booking_id ? 'Cancel' : booking.driver_name ? 'Reassign Driver' : 'Assign Driver'}
+                            Edit
                             </button>
-                        )}
-
-                        {assigningId === booking.booking_id && (
-                            <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2">
-                                <span className="text-xs text-gray-500">Select driver:</span>
-                                <select
-                                value={selectedDriver}
-                                onChange={(e) => setSelectedDriver(e.target.value)}
-                                className="border border-gray-200 rounded px-3 py-2 text-sm outline-none w-full"
-                                >
-                                <option value="">Choose a driver</option>
-                                {drivers.map(driver => (
-                                    <option key={driver.user_id} value={driver.user_id}>
-                                    {driver.name} — {driver.driver_capabilities}
-                                    </option>
-                                ))}
-                                </select>
-                                <button
-                                onClick={() => handleDriverAssign(booking.booking_id)}
-                                disabled={!selectedDriver || updating}
-                                className="w-full text-xs px-3 py-2 rounded text-white disabled:opacity-50"
-                                style={{ backgroundColor: '#15435B' }}
-                                >
-                                {updating ? 'Assigning...' : 'Confirm'}
-                                </button>
-                            </div>
                         )}
                     </div>
                 )}
@@ -431,6 +355,53 @@ export default function Bookings() {
                 onPageChange={setCurrentPage}
                 itemLabel="bookings"
             />
+
+            {/**Edit Modal */}
+            {editingBooking && (
+                <Modal
+                    onClose={() => setEditingBooking(null)}
+                    title="Edit Booking"
+                    subtitle={`${editingBooking.destination_name} — ${editingBooking.vehicle_type}`}
+                    onConfirm={handleEditSave}
+                    confirmDisabled={saving}
+                    confirmLabel={saving ? 'Saving...' : 'Save'}
+                >
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Status
+                        </label>
+                        <select
+                        value={editForm.status}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
+                        <option value="PENDING">Pending</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wide block mb-1">
+                            Driver
+                        </label>
+                        <select
+                        value={editForm.driver_id}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, driver_id: e.target.value }))}
+                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-[#15435B]">
+                        <option value="">{editingBooking.driver_name ? 'Keep current driver' : 'Choose a driver'}</option>
+                        {drivers.map(driver => (
+                            <option key={driver.user_id} value={driver.user_id}>
+                            {driver.name} — {driver.driver_capabilities}
+                            </option>
+                        ))}
+                        </select>
+                        {editingBooking.driver_name && (
+                            <p className="text-xs text-gray-400 mt-1">Currently assigned: {editingBooking.driver_name}</p>
+                        )}
+                    </div>
+                </Modal>
+            )}
         </>
     )
 }

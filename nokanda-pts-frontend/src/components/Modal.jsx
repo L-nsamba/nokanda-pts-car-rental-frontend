@@ -13,8 +13,11 @@ export default function Modal({
     widthClass = 'w-96',
 }) {
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className={`bg-white rounded-lg p-6 ${widthClass} max-w-[90vw] shadow-xl`}>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
+            <div
+                className={`bg-white rounded-lg p-6 ${widthClass} max-w-[90vw] shadow-xl`}
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 <h2 className="text-lg font-bold mb-1" style={{ color: '#15435B' }}>
                     {title}
